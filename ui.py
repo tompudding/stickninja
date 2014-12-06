@@ -519,9 +519,11 @@ class Box(UIElement):
         self.quad.SetColour(self.unselectable_colour)
 
 class Border(UIElement):
-    def __init__(self,parent,pos,tr,colour,buffer=globals.ui_buffer):
+    def __init__(self,parent,pos,tr,colour,line_width=1,buffer=None):
+        if buffer is None:
+            buffer = globals.ui_buffer
         super(Border,self).__init__(parent,pos,tr)
-        self.border = drawing.QuadBorder(buffer,line_width=1)
+        self.border = drawing.QuadBorder(buffer,line_width=line_width)
         self.colour = colour
         self.border.SetColour(colour)
         self.border.SetColour(self.colour)

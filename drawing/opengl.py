@@ -50,6 +50,7 @@ def InitDrawing():
     glEnableClientState(GL_TEXTURE_COORD_ARRAY)
     glEnableClientState(GL_COLOR_ARRAY)
     glEnable(GL_TEXTURE_2D)
+    LineWidth(2)
 
 def DrawAll(quad_buffer,texture):
     """

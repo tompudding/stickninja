@@ -55,21 +55,27 @@ class Titles(Mode):
     def KeyDown(self,key):
         self.stage = TitleStages.COMPLETE
 
-    def Update(self,t):
-        self.elapsed = t - self.start
-        self.stage = self.handlers[self.stage](t)
+    def Update(self):
+        self.elapsed = globals.t - self.start
+        self.stage = self.handlers[self.stage]()
 
-    def Complete(self,t):
+    def Complete(self):
         self.backdrop.Delete()
         self.blurb_text.Delete()
-        self.parent.mode = GameOver(self.parent)
+        self.parent.mode = GameMode(self.parent)
 
-    def Startup(self,t):
-        return TitleStages.STARTED
+    def Startup(self):
+        if self.elapsed < 100:
+            return TitleStages.STARTED
+        else:
+            return TitleStages.COMPLETE
 
 class GameMode(Mode):
     def __init__(self,parent):
         self.parent = parent
+
+    def Update(self):
+        self.parent.player.Update()
 
 
 class GameOver(Mode):
@@ -105,7 +111,7 @@ class GameOver(Mode):
         #pygame.mixer.music.load('end_fail.mp3')
         #pygame.mixer.music.play(-1)
 
-    def Update(self,t):
+    def Update(self):
         if self.start == None:
             self.start = t
         self.elapsed = t - self.start

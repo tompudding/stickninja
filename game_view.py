@@ -5,6 +5,7 @@ import ui,globals,drawing,os,copy
 from globals.types import Point
 import modes
 import random
+import actors
 
 class GameView(ui.RootElement):
     def __init__(self):
@@ -17,6 +18,8 @@ class GameView(ui.RootElement):
         self.mode = modes.Titles(self)
         #self.mode = modes.LevelOne(self)
         self.StartMusic()
+        self.border = ui.Border(self,Point(0,0),Point(1,1),colour=drawing.constants.colours.black,line_width=2)
+        self.player = actors.Ninja(self.GetAbsolute(Point(0.5,0)))
 
     def StartMusic(self):
         pass
@@ -29,14 +32,12 @@ class GameView(ui.RootElement):
         drawing.DrawNoTexture(globals.colour_tiles)
         drawing.DrawAll(globals.nonstatic_text_buffer,globals.text_manager.atlas.texture.texture)
 
-    def Update(self,t):
+    def Update(self):
         if self.mode:
-            self.mode.Update(t)
+            self.mode.Update()
 
         if self.game_over:
             return
-
-        self.t = t
 
     def GameOver(self):
         self.game_over = True
