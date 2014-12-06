@@ -11,6 +11,7 @@ import math
 import modes
 import bones
 from bones import Bones
+import copy
 
 class Directions:
     UP    = 0
@@ -105,12 +106,62 @@ crouch_right = {Bones.TORSO : (Point(0.4,0.15),math.pi*0.4),
                 Bones.LEFT_FOREARM : math.pi*0.23,
                 Bones.RIGHT_BICEP : -math.pi*0.12,
                 Bones.RIGHT_FOREARM : math.pi*0.08,
-                Bones.LEFT_THIGH : -math.pi*0.15,
-                Bones.LEFT_CALF : -math.pi*0.75,
-                Bones.RIGHT_THIGH : -math.pi*0.15,
-                Bones.RIGHT_CALF : -math.pi*0.75}
+                Bones.LEFT_THIGH : -math.pi*0.1,
+                Bones.LEFT_CALF : -math.pi*0.9,
+                Bones.RIGHT_THIGH : -math.pi*0.1,
+                Bones.RIGHT_CALF : -math.pi*0.9}
 
 crouch_left = bones.reflect(crouch_right)
+
+crouch_right_walk1 = {Bones.TORSO : (Point(0.4,0.25),math.pi*0.4),
+                      Bones.NECK  : math.pi*0.375,
+                      Bones.HEAD  : math.pi*0.5,
+                      Bones.LEFT_BICEP : -math.pi*0.45,
+                      Bones.LEFT_FOREARM : math.pi*0.1,
+                      Bones.RIGHT_BICEP : math.pi*1.4,
+                      Bones.RIGHT_FOREARM : -math.pi*0.1,
+                      Bones.LEFT_THIGH : -math.pi*0.4,
+                      Bones.LEFT_CALF : math.pi*1.25,
+                      Bones.RIGHT_THIGH : -math.pi*0.1,
+                      Bones.RIGHT_CALF : -math.pi*0.9}
+
+crouch_right_walk2 = {Bones.TORSO : (Point(0.4,0.16),math.pi*0.4),
+                      Bones.NECK  : math.pi*0.375,
+                      Bones.HEAD  : math.pi*0.5,
+                      Bones.LEFT_BICEP : -math.pi*0.45,
+                      Bones.LEFT_FOREARM : math.pi*0.1,
+                      Bones.RIGHT_BICEP : math.pi*1.4,
+                      Bones.RIGHT_FOREARM : -math.pi*0.1,
+                      Bones.LEFT_THIGH : -math.pi*0.4,
+                      Bones.LEFT_CALF : math.pi*1.25,
+                      Bones.RIGHT_THIGH : -math.pi*0.1,
+                      Bones.RIGHT_CALF : -math.pi*0.9}
+
+crouch_right_walk3 = {Bones.TORSO : (Point(0.4,0.25),math.pi*0.4),
+                      Bones.NECK  : math.pi*0.375,
+                      Bones.HEAD  : math.pi*0.5,
+                      Bones.LEFT_BICEP : -math.pi*0.45,
+                      Bones.LEFT_FOREARM : math.pi*0.1,
+                      Bones.RIGHT_BICEP : math.pi*1.4,
+                      Bones.RIGHT_FOREARM : -math.pi*0.1,
+                      Bones.LEFT_THIGH : -math.pi*0.1,
+                      Bones.LEFT_CALF : -math.pi*0.9,
+                      Bones.RIGHT_THIGH : -math.pi*0.4,
+                      Bones.RIGHT_CALF : math.pi*1.25}
+
+crouch_right_walk4 = {Bones.TORSO : (Point(0.4,0.16),math.pi*0.4),
+                      Bones.NECK  : math.pi*0.375,
+                      Bones.HEAD  : math.pi*0.5,
+                      Bones.LEFT_BICEP : -math.pi*0.45,
+                      Bones.LEFT_FOREARM : math.pi*0.1,
+                      Bones.RIGHT_BICEP : math.pi*1.4,
+                      Bones.RIGHT_FOREARM : -math.pi*0.1,
+                      Bones.LEFT_THIGH : -math.pi*0.1,
+                      Bones.LEFT_CALF : -math.pi*0.9,
+                      Bones.RIGHT_THIGH : -math.pi*0.4,
+                      Bones.RIGHT_CALF : math.pi*1.25}
+
+
 
 for i in xrange(len(walk_cycle_right)):
     walk = dict(walk_cycle_right[i])
@@ -122,6 +173,12 @@ for i in xrange(len(walk_cycle_right)):
     walk_cycle_right.append(walk)
 
 walk_cycle_left = [bones.reflect(wc) for wc in walk_cycle_right]
+
+crouch_cycle_right = [crouch_right_walk1,crouch_right_walk2,crouch_right_walk3,crouch_right_walk4]
+crouch_cycle_left = [bones.reflect(wc) for wc in crouch_cycle_right]
+
+
+
 
 class FrameTransition(object):
     def __init__(self,start,end,duration):
@@ -197,9 +254,9 @@ class Actor(object):
                       Bones.RIGHT_CALF    : self.right_calf}
 
         self.walking = {Directions.RIGHT : {Stances.STANDING : Animation(walk_cycle_right, (100,300,300,200,100,300,300,200)),
-                                            Stances.CROUCH   : Animation(walk_cycle_right, (100,300,300,200,100,300,300,200))},
+                                            Stances.CROUCH   : Animation(crouch_cycle_right, (200,200,200,200))},
                         Directions.LEFT  : {Stances.STANDING : Animation(walk_cycle_left[::-1], (100,300,300,200,100,300,300,200)),
-                                            Stances.CROUCH   : Animation(walk_cycle_left[::-1], (100,300,300,200,100,300,300,200))}}
+                                            Stances.CROUCH   : Animation(crouch_cycle_left[::-1], (200,200,200,200))}}
 
         self.standing = {Directions.RIGHT : {Stances.STANDING : Animation([standing_right,standing_right],(100,100)),
                                              Stances.CROUCH   : Animation([crouch_right,crouch_right],(100,100))},
@@ -247,7 +304,7 @@ class Actor(object):
         self.stance = Stances.STANDING
 
         if self.on_ground:
-            self.move_speed.x += self.move_direction.x*elapsed*0.03
+
             if self.move_direction.y > 0:
                 #sort of a jump
                 self.move_speed.y += self.move_direction.y*elapsed*0.03
@@ -256,6 +313,10 @@ class Actor(object):
             elif self.move_direction.y < 0:
                 #crouching
                 self.stance = Stances.CROUCH
+            if self.stance != Stances.CROUCH:
+                self.move_speed.x += self.move_direction.x*elapsed*0.03
+            else:
+                self.move_speed.x += self.move_direction.x*elapsed*0.03*0.6
 
             #Apply friction
             self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
@@ -297,6 +358,10 @@ class Actor(object):
         if target.y < 0:
             amount.y = -self.pos.y
             self.move_speed.y = 0
+
+        if target.x < 0:
+            amount.x = -self.pos.x
+
         target = self.pos + amount
 
         if abs(target.y) < 0.1:
