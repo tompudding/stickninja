@@ -1,0 +1,7 @@
+*.pyc
+*~
+*.swp
+.project
+.pydevproject
+errorlog.log
+*.orig
