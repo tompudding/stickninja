@@ -92,7 +92,7 @@ standing_right = {Bones.TORSO : (Point(0.5,0.45),math.pi*0.5),
                   Bones.RIGHT_THIGH : -math.pi*0.52,
                   Bones.RIGHT_CALF : -math.pi*0.5}
 
-standing_left = standing_right
+standing_left = bones.reflect(standing_right)
 
 for i in xrange(len(walk_cycle_right)):
     walk = dict(walk_cycle_right[i])
@@ -110,19 +110,31 @@ class FrameTransition(object):
         self.start = start
         self.end = end
         self.duration = duration
-        self.change = bones.frame_difference(self.start,self.end)
+        self.change = bones.FrameDifference(self.start,self.end)
 
     def get_frame(self,t):
-        return (self.change*(t/self.duration)).add(self.start)
+        return bones.add((self.change*(t/self.duration)),self.start)
 
-class WalkCycle(object):
+class Animation(object):
     def __init__(self,frames,durations):
         self.frames = []
+        self.total_duration = 0
         for i in xrange(len(frames)):
             start_frame = frames[i]
             end_frame = frames[(i+1)%len(frames)]
             duration = durations[i]
+            self.total_duration += duration
             self.frames.append(FrameTransition(start_frame,end_frame,duration))
+
+    def get_frame(self,t):
+        t %= self.total_duration
+        orig = t
+        for frame in self.frames:
+            if frame.duration > t:
+                return frame.get_frame(t)
+            t -= frame.duration
+        print orig,self.total_duration
+        raise Bobbins
 
 class Actor(object):
     width  = 10
@@ -151,8 +163,6 @@ class Actor(object):
         self.jumping = False
         self.jumped = False
         self.dir = Directions.RIGHT
-        self.standing_frame = {Directions.RIGHT : standing_right,
-                               Directions.LEFT  : standing_left}
 
         self.bones = {Bones.TORSO         : self.torso,
                       Bones.HEAD          : self.head,
@@ -165,29 +175,21 @@ class Actor(object):
                       Bones.LEFT_CALF     : self.left_calf,
                       Bones.RIGHT_THIGH   : self.right_thigh,
                       Bones.RIGHT_CALF    : self.right_calf}
-        self.pending_frames = []
 
-        self.set_key_frame(walk_cycle_right[0],0)
-        a = 100
-        b = 300
-        c = 300
-        d = 200
-        for i in xrange(10):
-            self.add_key_frame(walk_cycle_right[1],a)
-            self.add_key_frame(walk_cycle_right[2],b)
-            self.add_key_frame(walk_cycle_right[3],c)
-            self.add_key_frame(walk_cycle_right[4],d)
-            self.add_key_frame(walk_cycle_right[5],a)
-            self.add_key_frame(walk_cycle_right[6],b)
-            self.add_key_frame(walk_cycle_right[7],c)
-            self.add_key_frame(walk_cycle_right[0],d)
+        self.walking = {Directions.RIGHT : Animation(walk_cycle_right, (100,300,300,200,100,300,300,200)),
+                        Directions.LEFT  : Animation(walk_cycle_left, (100,300,300,200,100,300,300,200))}
+
+        self.standing = {Directions.RIGHT : Animation([standing_right,standing_right],(100,100)),
+                         Directions.LEFT  : Animation([standing_left,standing_left],(100,100))}
+
+        self.current_animation = self.standing[self.dir]
 
     def add_child(self,child):
         self.children.append(child)
 
     def set_key_frame(self,frame,duration):
         if duration:
-            self.end_frame = globals.t + duration
+            self.end_frame = globals.time + duration
         else:
             self.end_frame = None
         for bone, data in frame.iteritems():
@@ -205,14 +207,16 @@ class Actor(object):
     def Update(self):
         for child in self.children:
             child.Update()
+        if self.end_frame and globals.time > self.end_frame:
+            self.end_frame = None
         self.Move()
 
     def Move(self):
         if self.last_update is None:
-            self.last_update = globals.t
+            self.last_update = globals.time
             return
         elapsed = globals.time - self.last_update
-        self.last_update = globals.t
+        self.last_update = globals.time
 
         self.move_speed.x += self.move_direction.x*elapsed*0.03
         if self.jumping and not self.jumped:
@@ -237,17 +241,19 @@ class Actor(object):
             self.walked = 0
             amount.x = 0
             self.move_speed.x = 0
-            self.set_key_frame(self.standing_frame[self.dir], 100)
+            new_animation = self.standing[self.dir]
         else:
             self.still = False
+            new_animation = self.walking[self.dir]
 
-        if not self.end_frame or globals.t > self.end_frame:
-            #time for a new keyframe...
-            try:
-                frame, duration = self.pending_frames.pop(0)
-            except IndexError:
-                return
-            self.set_key_frame(frame, duration)
+        if self.end_frame is None:
+            #We can set the frame directly since we're not transitioning
+            if new_animation is not self.current_animation:
+                #we want to quickly transition to the first frame of the new animation
+                self.set_key_frame(new_animation.get_frame(0),100)
+            else:
+                self.set_key_frame(self.current_animation.get_frame(self.walked*30.0),0)
+            self.current_animation = new_animation
 
 class Ninja(Actor):
     initial_health = 100

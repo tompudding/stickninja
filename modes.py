@@ -56,7 +56,7 @@ class Titles(Mode):
         self.stage = TitleStages.COMPLETE
 
     def Update(self):
-        self.elapsed = globals.t - self.start
+        self.elapsed = globals.time - self.start
         self.stage = self.handlers[self.stage]()
 
     def Complete(self):

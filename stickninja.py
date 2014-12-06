@@ -32,7 +32,7 @@ def Init():
     drawing.InitDrawing()
 
     globals.text_manager = drawing.texture.TextManager()
-    globals.t = pygame.time.get_ticks()
+    globals.time = pygame.time.get_ticks()
 
 def main():
     """Main loop for the game"""
@@ -47,7 +47,7 @@ def main():
     while not done:
         drawing.NewFrame()
         clock.tick(60)
-        globals.t = t = pygame.time.get_ticks()
+        globals.time = t = pygame.time.get_ticks()
         if t - last > 1000:
             #print 'FPS:',clock.get_fps()
             last = t

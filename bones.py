@@ -75,6 +75,9 @@ def reflect_item(data):
         angle = data
         return math.pi-angle
 
+def add(a,b):
+    return {bone:bone_add(value, b[bone]) for (bone, value) in a.iteritems()}
+
 
 def reflect(keyframe):
     return {bone:reflect_item(data) for (bone,data) in keyframe.iteritems()}
@@ -87,10 +90,7 @@ class FrameDifference(object):
             self.data[bone] = bone_difference(start[bone],end[bone])
 
     def __mul__(self,other):
-        return {bone:bone_multiply(value) for (bone,value) in self.data.iteritems()}
-
-    def add(self,other):
-        return {bone:bone_add(value, other[bone]) for (bone, value) in self.data.iteritems()}
+        return {bone:bone_multiply(value,other) for (bone,value) in self.data.iteritems()}
 
 
 class Bone(object):
@@ -118,8 +118,8 @@ class Bone(object):
             self.angle = angle
             self.keyframe_end = self.keyframe_start = None
             return
-        self.keyframe_end   = globals.t + duration
-        self.keyframe_start = globals.t
+        self.keyframe_end   = globals.time + duration
+        self.keyframe_start = globals.time
         self.frame_duration = float(duration)
         self.target_pos     = pos
         self.target_angle   = angle
@@ -136,12 +136,12 @@ class Bone(object):
 
     def Update(self):
         if self.keyframe_end:
-            if globals.t >= self.keyframe_end:
+            if globals.time >= self.keyframe_end:
                 self.angle = self.target_angle
                 self.pos = self.target_pos
                 self.keyframe_end = self.keyframe_start = None
             else:
-                partial = (globals.t - self.keyframe_start)/self.frame_duration
+                partial = (globals.time - self.keyframe_start)/self.frame_duration
                 self.angle = self.start_angle + (self.angle_change*partial)
                 self.pos = self.start_pos + (self.pos_change*partial)
         self.set_pos()
