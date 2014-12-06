@@ -139,26 +139,26 @@ class Animation(object):
 class Actor(object):
     width  = 10
     height = 20
-    size = Point(width,height)
+    scale = 1.5
+    size = Point(width*scale,height*scale)
     def __init__(self,pos):
-        self.start_pos_abs = pos
-        self.end_pos_abs = pos
+        self.set_pos(pos)
         self.end_frame = None
         self.children = []
         self.move_direction = Point(0,0)
         self.last_update = None
         self.move_speed = Point(0,0)
-        self.torso         = bones.LineBone(self,6)
-        self.neck          = bones.LineBone(self.torso,1)
-        self.head          = bones.CircleBone(self.neck,3)
-        self.left_bicep    = bones.LineBone(self.torso,3)
-        self.left_forearm  = bones.LineBone(self.left_bicep,3)
-        self.right_bicep   = bones.LineBone(self.torso,3)
-        self.right_forearm = bones.LineBone(self.right_bicep,3)
-        self.left_thigh    = bones.LineBone(self.torso, 4, end = bones.ends.START)
-        self.left_calf     = bones.LineBone(self.left_thigh, 3)
-        self.right_thigh   = bones.LineBone(self.torso, 4, end = bones.ends.START)
-        self.right_calf    = bones.LineBone(self.right_thigh, 3)
+        self.torso         = bones.LineBone(self,6*self.scale)
+        self.neck          = bones.LineBone(self.torso,1*self.scale)
+        self.head          = bones.CircleBone(self.neck,3*self.scale)
+        self.left_bicep    = bones.LineBone(self.torso,3*self.scale)
+        self.left_forearm  = bones.LineBone(self.left_bicep,3*self.scale)
+        self.right_bicep   = bones.LineBone(self.torso,3*self.scale)
+        self.right_forearm = bones.LineBone(self.right_bicep,3*self.scale)
+        self.left_thigh    = bones.LineBone(self.torso, 4*self.scale, end = bones.ends.START)
+        self.left_calf     = bones.LineBone(self.left_thigh, 3*self.scale)
+        self.right_thigh   = bones.LineBone(self.torso, 4*self.scale, end = bones.ends.START)
+        self.right_calf    = bones.LineBone(self.right_thigh, 3*self.scale)
         self.walked = 0
         self.jumping = False
         self.jumped = False
@@ -224,7 +224,7 @@ class Actor(object):
         if self.jumping and not self.jumped:
             self.move_speed.y += self.jump_amount
             self.jumped = True
-        self.move_speed.x *= 0.5*(1-(elapsed/1000.0))
+        self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
         self.move_speed.y += globals.gravity*elapsed*0.03
 
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
@@ -254,8 +254,16 @@ class Actor(object):
                 #we want to quickly transition to the first frame of the new animation
                 self.set_key_frame(new_animation.get_frame(0),200)
             else:
-                self.set_key_frame(self.current_animation.get_frame(self.walked*800.0),0)
+                self.set_key_frame(self.current_animation.get_frame(self.walked*24.0),0)
             self.current_animation = new_animation
+
+        amount.y = 0
+        self.set_pos(self.pos + amount)
+
+    def set_pos(self,pos):
+        self.pos = pos
+        self.start_pos_abs = pos
+        self.end_pos_abs = pos
 
 class Ninja(Actor):
     initial_health = 100
