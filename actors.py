@@ -98,16 +98,16 @@ standing_right = {Bones.TORSO : (Point(0.5,0.45),math.pi*0.5),
 
 standing_left = bones.reflect(standing_right)
 
-crouch_right = {Bones.TORSO : (Point(0.4,0.3),math.pi*0.25),
+crouch_right = {Bones.TORSO : (Point(0.4,0.15),math.pi*0.4),
                 Bones.NECK  : math.pi*0.375,
-                Bones.HEAD  : math.pi*0.375,
-                Bones.LEFT_BICEP : math.pi*1.4,
-                Bones.LEFT_FOREARM : -math.pi*0.42,
-                Bones.RIGHT_BICEP : -math.pi*0.4,
-                Bones.RIGHT_FOREARM : -math.pi*0.35,
-                Bones.LEFT_THIGH : -math.pi*0.25,
+                Bones.HEAD  : math.pi*0.5,
+                Bones.LEFT_BICEP : -math.pi*0.27,
+                Bones.LEFT_FOREARM : math.pi*0.23,
+                Bones.RIGHT_BICEP : -math.pi*0.12,
+                Bones.RIGHT_FOREARM : math.pi*0.08,
+                Bones.LEFT_THIGH : -math.pi*0.15,
                 Bones.LEFT_CALF : -math.pi*0.75,
-                Bones.RIGHT_THIGH : -math.pi*0.25,
+                Bones.RIGHT_THIGH : -math.pi*0.15,
                 Bones.RIGHT_CALF : -math.pi*0.75}
 
 crouch_left = bones.reflect(crouch_right)
@@ -151,7 +151,6 @@ class Animation(object):
             if frame.duration > t:
                 return frame.get_frame(t)
             t -= frame.duration
-        print orig,self.total_duration
         raise Bobbins
 
 class Actor(object):
@@ -167,9 +166,9 @@ class Actor(object):
         self.move_direction = Point(0,0)
         self.last_update = None
         self.move_speed = Point(0,0)
-        self.torso         = bones.LineBone(self,6*self.scale)
+        self.torso         = bones.LineBone(self,4*self.scale)
         self.neck          = bones.LineBone(self.torso,1*self.scale)
-        self.head          = bones.CircleBone(self.neck,3*self.scale)
+        self.head          = bones.CircleBone(self.neck,2*self.scale)
         self.left_bicep    = bones.LineBone(self.torso,3*self.scale)
         self.left_forearm  = bones.LineBone(self.left_bicep,3*self.scale)
         self.right_bicep   = bones.LineBone(self.torso,3*self.scale)
@@ -247,8 +246,6 @@ class Actor(object):
 
         self.stance = Stances.STANDING
 
-        print self.move_direction
-
         if self.on_ground:
             self.move_speed.x += self.move_direction.x*elapsed*0.03
             if self.move_direction.y > 0:
@@ -291,7 +288,7 @@ class Actor(object):
             #We can set the frame directly since we're not transitioning
             if new_animation is not self.current_animation:
                 #we want to quickly transition to the first frame of the new animation
-                self.set_key_frame(new_animation.get_frame(0),200)
+                self.set_key_frame(new_animation.get_frame(0),100)
             else:
                 self.set_key_frame(self.current_animation.get_frame(self.walked*24.0),0)
             self.current_animation = new_animation
