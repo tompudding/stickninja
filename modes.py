@@ -74,8 +74,16 @@ class GameMode(Mode):
     speed = 200
     direction_amounts = {pygame.K_a  : Point(-0.01*speed, 0.00),
                          pygame.K_d : Point( 0.01*speed, 0.00),
-                         pygame.K_w    : Point( 0.00, 0.01*speed),
-                         pygame.K_s  : Point( 0.00,-0.01*speed)}
+                         pygame.K_w    : Point( 0.00, 0.02*speed),
+                         #pygame.K_s  : Point( 0.00,-0.01*speed),
+                         }
+    inv_direction_amounts = {pygame.K_a  : Point(0.01*speed, 0.00),
+                             pygame.K_d : Point(-0.01*speed, 0.00),
+                             pygame.K_w    : Point( 0.00, 0.00), #hack for jumping
+                             #pygame.K_s  : Point( 0.00,-0.01*speed),
+                         }
+    direction_amounts[pygame.K_RIGHT] = direction_amounts[pygame.K_d]
+    direction_amounts[pygame.K_LEFT] = direction_amounts[pygame.K_a]
     class KeyFlags:
         LEFT  = 1
         RIGHT = 2
@@ -85,6 +93,8 @@ class GameMode(Mode):
                 pygame.K_d : KeyFlags.RIGHT,
                 pygame.K_w    : KeyFlags.UP,
                 pygame.K_s  : KeyFlags.DOWN}
+    keyflags[pygame.K_RIGHT] = KeyFlags.RIGHT
+    keyflags[pygame.K_LEFT] = KeyFlags.LEFT
 
     def __init__(self,parent):
         self.parent = parent
@@ -92,19 +102,16 @@ class GameMode(Mode):
 
     def KeyDown(self,key):
         if key in self.direction_amounts:
-            self.keydownmap |= self.keyflags[key]
-            self.parent.player.move_direction += self.direction_amounts[key]
-        elif key == pygame.K_SPACE:
-            self.parent.player.jumping = True
-            self.parent.player.jumped  = False
+            if not self.keydownmap&self.keyflags[key]:
+                self.keydownmap |= self.keyflags[key]
+                self.parent.player.move_direction += self.direction_amounts[key]
 
     def KeyUp(self,key):
         if key in self.direction_amounts and (self.keydownmap & self.keyflags[key]):
-            self.keydownmap &= (~self.keyflags[key])
-            self.parent.player.move_direction -= self.direction_amounts[key]
-        elif key == pygame.K_SPACE:
-            self.parent.player.jumping = False
-            self.parent.player.jumped  = False
+            if self.keydownmap&self.keyflags[key]:
+                self.keydownmap &= (~self.keyflags[key])
+                self.parent.player.move_direction += self.inv_direction_amounts[key]
+
 
     def Update(self):
         self.parent.player.Update()

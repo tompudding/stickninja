@@ -21,7 +21,7 @@ def Init():
     globals.line_buffer           = drawing.LineBuffer(16384)
     globals.tile_dimensions       = Point(16,16)*globals.tile_scale
     globals.sounds                = sounds.Sounds()
-    globals.gravity = -0.05
+    globals.gravity = -0.1
 
     globals.dirs = globals.types.Directories('resource')
 

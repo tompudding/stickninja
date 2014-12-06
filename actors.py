@@ -141,6 +141,7 @@ class Actor(object):
     height = 20
     scale = 1.5
     size = Point(width*scale,height*scale)
+    jump_amount = 3
     def __init__(self,pos):
         self.set_pos(pos)
         self.end_frame = None
@@ -162,6 +163,7 @@ class Actor(object):
         self.walked = 0
         self.jumping = False
         self.jumped = False
+        self.on_ground = True
         self.dir = Directions.RIGHT
 
         self.bones = {Bones.TORSO         : self.torso,
@@ -220,13 +222,15 @@ class Actor(object):
         elapsed = globals.time - self.last_update
         self.last_update = globals.time
 
-        self.move_speed.x += self.move_direction.x*elapsed*0.03
-        #Apply friction
-        self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
+        if self.on_ground:
+            self.move_speed.x += self.move_direction.x*elapsed*0.03
+            if self.move_direction.y:
+                #sort of a jump
+                self.move_speed.y += self.move_direction.y*elapsed*0.03
+                self.move_direction.y = 0
+            #Apply friction
+            self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
 
-        if self.jumping and not self.jumped:
-            self.move_speed.y += self.jump_amount
-            self.jumped = True
 
         self.move_speed.y += globals.gravity*elapsed*0.03
 
@@ -260,9 +264,18 @@ class Actor(object):
                 self.set_key_frame(self.current_animation.get_frame(self.walked*24.0),0)
             self.current_animation = new_animation
 
-        amount.y = 0
+        target = self.pos + amount
+        if target.y < 0:
+            amount.y = -self.pos.y
+            self.move_speed.y = 0
+        target = self.pos + amount
+        print target.y
+        if abs(target.y) < 0.1:
+            self.on_ground = True
+        else:
+            self.on_ground = False
 
-        self.set_pos(self.pos + amount)
+        self.set_pos(target)
 
     def set_pos(self,pos):
         self.pos = pos
