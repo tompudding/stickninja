@@ -14,7 +14,7 @@ class Bone(object):
         self.end = end
         self.parent               = parent
         self.length               = length
-        self.pos_from_parent_bone = Point(0,0)
+        self.pos = Point(0,0)
         self.angle                = 0
         self.target_pos           = None
         self.target_angle         = None
@@ -50,9 +50,9 @@ class Bone(object):
                 self.pos = self.target_pos
                 self.keyframe_end = self.keyframe_start = None
             else:
-                partial = (globals.t - globals.keyframe_start)/self.frame_duration
-                self.angle = self.start_angle + self.angle_change*partial
-                self.pos = self.start_pos + self.pos_change*partial
+                partial = (globals.t - self.keyframe_start)/self.frame_duration
+                self.angle = self.start_angle + (self.angle_change*partial)
+                self.pos = self.start_pos + (self.pos_change*partial)
         self.set_pos()
         for child in self.children:
             child.Update()
@@ -60,10 +60,10 @@ class Bone(object):
     def set_pos(self):
         #Update the vertices from parents position and our current angle and position
         if self.end == ends.START:
-            self.start_pos = self.parent.start_pos + self.pos
+            self.start_pos_abs = self.parent.start_pos_abs + self.pos
         else:
-            self.start_pos = self.parent.end_pos + self.pos
+            self.start_pos_abs = self.parent.end_pos_abs + self.pos
 
-        self.end_pos = self.start_pos + (Point(math.cos(self.angle),math.sin(self.angle))*self.length)
-        self.line.set_pos(self.start_pos, self.end_pos)
+        self.end_pos_abs = self.start_pos_abs + (Point(math.cos(self.angle),math.sin(self.angle))*self.length)
+        self.line.set_pos(self.start_pos_abs, self.end_pos_abs)
 
