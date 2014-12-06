@@ -269,7 +269,7 @@ class Actor(object):
             amount.y = -self.pos.y
             self.move_speed.y = 0
         target = self.pos + amount
-        print target.y
+
         if abs(target.y) < 0.1:
             self.on_ground = True
         else:
