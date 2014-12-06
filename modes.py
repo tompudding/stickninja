@@ -75,12 +75,12 @@ class GameMode(Mode):
     direction_amounts = {pygame.K_a  : Point(-0.01*speed, 0.00),
                          pygame.K_d : Point( 0.01*speed, 0.00),
                          pygame.K_w    : Point( 0.00, 0.04*speed),
-                         #pygame.K_s  : Point( 0.00,-0.01*speed),
+                         pygame.K_s  : Point( 0.00,-0.01*speed),
                          }
     inv_direction_amounts = {pygame.K_a  : Point(0.01*speed, 0.00),
                              pygame.K_d : Point(-0.01*speed, 0.00),
                              pygame.K_w    : Point( 0.00, 0.00), #hack for jumping
-                             #pygame.K_s  : Point( 0.00,-0.01*speed),
+                             pygame.K_s  : Point( 0.00,0.01*speed),
                          }
     direction_amounts[pygame.K_RIGHT] = direction_amounts[pygame.K_d]
     direction_amounts[pygame.K_LEFT] = direction_amounts[pygame.K_a]

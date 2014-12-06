@@ -18,6 +18,10 @@ class Directions:
     RIGHT = 2
     LEFT  = 3
 
+class Stances:
+    STANDING = 0
+    CROUCH   = 1
+
 standing_frame = {Bones.TORSO : (Point(0.5,0.4),math.pi*0.5),
                   Bones.NECK  : math.pi*0.5,
                   Bones.HEAD  : math.pi*0.5,
@@ -94,6 +98,20 @@ standing_right = {Bones.TORSO : (Point(0.5,0.45),math.pi*0.5),
 
 standing_left = bones.reflect(standing_right)
 
+crouch_right = {Bones.TORSO : (Point(0.4,0.3),math.pi*0.25),
+                Bones.NECK  : math.pi*0.375,
+                Bones.HEAD  : math.pi*0.375,
+                Bones.LEFT_BICEP : math.pi*1.4,
+                Bones.LEFT_FOREARM : -math.pi*0.42,
+                Bones.RIGHT_BICEP : -math.pi*0.4,
+                Bones.RIGHT_FOREARM : -math.pi*0.35,
+                Bones.LEFT_THIGH : -math.pi*0.25,
+                Bones.LEFT_CALF : -math.pi*0.75,
+                Bones.RIGHT_THIGH : -math.pi*0.25,
+                Bones.RIGHT_CALF : -math.pi*0.75}
+
+crouch_left = bones.reflect(crouch_right)
+
 for i in xrange(len(walk_cycle_right)):
     walk = dict(walk_cycle_right[i])
     for (a,b) in ( (Bones.RIGHT_CALF, Bones.LEFT_CALF),
@@ -165,6 +183,7 @@ class Actor(object):
         self.jumped = False
         self.on_ground = True
         self.dir = Directions.RIGHT
+        self.stance = Stances.STANDING
 
         self.bones = {Bones.TORSO         : self.torso,
                       Bones.HEAD          : self.head,
@@ -178,13 +197,17 @@ class Actor(object):
                       Bones.RIGHT_THIGH   : self.right_thigh,
                       Bones.RIGHT_CALF    : self.right_calf}
 
-        self.walking = {Directions.RIGHT : Animation(walk_cycle_right, (100,300,300,200,100,300,300,200)),
-                        Directions.LEFT  : Animation(walk_cycle_left[::-1], (100,300,300,200,100,300,300,200))}
+        self.walking = {Directions.RIGHT : {Stances.STANDING : Animation(walk_cycle_right, (100,300,300,200,100,300,300,200)),
+                                            Stances.CROUCH   : Animation(walk_cycle_right, (100,300,300,200,100,300,300,200))},
+                        Directions.LEFT  : {Stances.STANDING : Animation(walk_cycle_left[::-1], (100,300,300,200,100,300,300,200)),
+                                            Stances.CROUCH   : Animation(walk_cycle_left[::-1], (100,300,300,200,100,300,300,200))}}
 
-        self.standing = {Directions.RIGHT : Animation([standing_right,standing_right],(100,100)),
-                         Directions.LEFT  : Animation([standing_left,standing_left],(100,100))}
+        self.standing = {Directions.RIGHT : {Stances.STANDING : Animation([standing_right,standing_right],(100,100)),
+                                             Stances.CROUCH   : Animation([crouch_right,crouch_right],(100,100))},
+                         Directions.LEFT  : {Stances.STANDING : Animation([standing_left,standing_left],(100,100)),
+                                             Stances.CROUCH   : Animation([crouch_left,crouch_left],(100,100))}}
 
-        self.current_animation = self.standing[self.dir]
+        self.current_animation = self.standing[self.dir][self.stance]
 
     def add_child(self,child):
         self.children.append(child)
@@ -222,12 +245,21 @@ class Actor(object):
         elapsed = globals.time - self.last_update
         self.last_update = globals.time
 
+        self.stance = Stances.STANDING
+
+        print self.move_direction
+
         if self.on_ground:
             self.move_speed.x += self.move_direction.x*elapsed*0.03
-            if self.move_direction.y:
+            if self.move_direction.y > 0:
                 #sort of a jump
                 self.move_speed.y += self.move_direction.y*elapsed*0.03
                 self.move_direction.y = 0
+                self.crouch = False
+            elif self.move_direction.y < 0:
+                #crouching
+                self.stance = Stances.CROUCH
+
             #Apply friction
             self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
 
@@ -250,10 +282,10 @@ class Actor(object):
             self.walked = 0
             amount.x = 0
             self.move_speed.x = 0
-            new_animation = self.standing[self.dir]
+            new_animation = self.standing[self.dir][self.stance]
         else:
             self.still = False
-            new_animation = self.walking[self.dir]
+            new_animation = self.walking[self.dir][self.stance]
 
         if self.end_frame is None:
             #We can set the frame directly since we're not transitioning
