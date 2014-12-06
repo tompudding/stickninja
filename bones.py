@@ -10,7 +10,6 @@ class ends:
 class Bone(object):
     def __init__(self,parent,length,end=ends.END):
         self.children = []
-        self.line                 = drawing.shapes.Line(Point(0,0),Point(0,0),globals.line_buffer)
         self.end = end
         self.parent               = parent
         self.length               = length
@@ -57,6 +56,11 @@ class Bone(object):
         for child in self.children:
             child.Update()
 
+class LineBone(Bone):
+    def __init__(self, *args, **kwargs):
+        self.line = drawing.shapes.Line(Point(0,0),Point(0,0),globals.line_buffer)
+        super(LineBone,self).__init__(*args, **kwargs)
+
     def set_pos(self):
         #Update the vertices from parents position and our current angle and position
         if self.end == ends.START:
@@ -67,3 +71,15 @@ class Bone(object):
         self.end_pos_abs = self.start_pos_abs + (Point(math.cos(self.angle),math.sin(self.angle))*self.length)
         self.line.set_pos(self.start_pos_abs, self.end_pos_abs)
 
+class CircleBone(Bone):
+    def __init__(self,parent,length,end=ends.END):
+        self.circle = drawing.shapes.Circle(Point(0,0),length, globals.line_buffer)
+        super(CircleBone,self).__init__(parent,length,end)
+
+    def set_pos(self):
+        if self.end == ends.START:
+            self.contact = self.parent.start_pos_abs + self.pos
+        else:
+            self.contact = self.parent.end_pos_abs + self.pos
+        self.centre = self.contact + (Point(math.cos(self.angle),math.sin(self.angle))*self.length)
+        self.circle.set_pos(self.centre)
