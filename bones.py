@@ -40,7 +40,13 @@ class Bone(object):
         self.start_pos      = self.pos
         self.start_angle    = self.angle
         self.pos_change     = self.target_pos - self.pos
-        self.angle_change   = self.target_angle - self.angle
+        self.angle_change   = (self.target_angle - self.angle)
+        if self.angle_change > math.pi:
+            self.angle_change -= math.pi*2
+        elif self.angle_change < -math.pi:
+            self.angle_change += math.pi*2
+        #if self.angle_change > math.pi:
+        #    self.angle_change = math.pi*2-self.angle_change
 
     def Update(self):
         if self.keyframe_end:
