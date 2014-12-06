@@ -7,6 +7,92 @@ class ends:
     START = 0
     END   = 1
 
+class Bones:
+    TORSO         = 0
+    NECK          = 1
+    HEAD          = 2
+    LEFT_BICEP    = 3
+    LEFT_FOREARM  = 4
+    RIGHT_BICEP   = 5
+    RIGHT_FOREARM = 6
+    LEFT_THIGH    = 7
+    LEFT_CALF     = 8
+    #LEFT_FOOT     = 9
+    RIGHT_THIGH   = 10
+    RIGHT_CALF    = 11
+    #RIGHT_FOOT    = 12
+
+    all_bones = [TORSO,
+                 NECK,
+                 HEAD,
+                 LEFT_BICEP,
+                 LEFT_FOREARM,
+                 RIGHT_BICEP,
+                 RIGHT_FOREARM,
+                 LEFT_THIGH,
+                 LEFT_CALF,
+                 RIGHT_THIGH,
+                 RIGHT_CALF]
+
+def angle_difference(start, end):
+    change   = end - start
+    if change > math.pi:
+        change -= math.pi*2
+    elif change < -math.pi:
+        change += math.pi*2
+    return change
+
+def bone_difference(start, end):
+    try:
+        start_pos, start_angle = start
+        end_pos,   end_angle = end
+        return end_pos - start_pos,angle_difference(end_angle, start_angle)
+    except TypeError:
+        return angle_difference(end, start)
+
+def bone_add(start, end):
+    try:
+        start_pos, start_angle = start
+        end_pos,   end_angle = end
+        return end_pos + start_pos,start_angle + end_angle
+    except TypeError:
+        return start + end
+
+
+def bone_multiply(data, amount):
+    try:
+        pos,angle = data
+        return pos*amount,angle*amount
+    except TypeError:
+        angle = data
+        return angle*amount
+
+def reflect_item(data):
+    try:
+        pos,angle = data
+        return Point(-pos.x,pos.y),math.pi-angle
+    except TypeError:
+        angle = data
+        return math.pi-angle
+
+
+def reflect(keyframe):
+    return {bone:reflect_item(data) for (bone,data) in keyframe.iteritems()}
+
+
+class FrameDifference(object):
+    def __init__(self,start,end):
+        self.data = {}
+        for bone in Bones.all_bones:
+            self.data[bone] = bone_difference(start[bone],end[bone])
+
+    def __mul__(self,other):
+        return {bone:bone_multiply(value) for (bone,value) in self.data.iteritems()}
+
+    def add(self,other):
+        return {bone:bone_add(value, other[bone]) for (bone, value) in self.data.iteritems()}
+
+
 class Bone(object):
     def __init__(self,parent,length,end=ends.END):
         self.children = []

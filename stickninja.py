@@ -14,21 +14,25 @@ def Init():
     globals.screen                = Point(w,h)/globals.scale
     globals.screen_root           = ui.UIRoot(Point(0,0),globals.screen)
     globals.ui_buffer             = drawing.QuadBuffer(131072)
+    globals.ui_texture_buffer     = drawing.QuadBuffer(131072)
     globals.nonstatic_text_buffer = drawing.QuadBuffer(131072)
     globals.colour_tiles          = drawing.QuadBuffer(131072)
     globals.mouse_relative_buffer = drawing.QuadBuffer(1024)
     globals.line_buffer           = drawing.LineBuffer(16384)
     globals.tile_dimensions       = Point(16,16)*globals.tile_scale
     globals.sounds                = sounds.Sounds()
+    globals.gravity = -0.05
 
     globals.dirs = globals.types.Directories('resource')
 
     pygame.init()
     screen = pygame.display.set_mode((w,h),pygame.OPENGL|pygame.DOUBLEBUF)
-    pygame.display.set_caption('skeleton')
+    pygame.display.set_caption('Stick Ninja')
     drawing.Init(globals.screen.x,globals.screen.y)
+    drawing.InitDrawing()
 
     globals.text_manager = drawing.texture.TextManager()
+    globals.t = pygame.time.get_ticks()
 
 def main():
     """Main loop for the game"""
@@ -43,14 +47,12 @@ def main():
     while not done:
         drawing.NewFrame()
         clock.tick(60)
-        globals.time = t = pygame.time.get_ticks()
+        globals.t = t = pygame.time.get_ticks()
         if t - last > 1000:
             #print 'FPS:',clock.get_fps()
             last = t
-        
-        #globals.current_time = t
 
-        globals.current_view.Update(t)
+        globals.current_view.Update()
         globals.current_view.Draw()
         globals.screen_root.Draw()
         globals.text_manager.Draw()
@@ -91,7 +93,7 @@ def main():
                             break
                         if handled:
                             break
-                    
+
                 elif (event.type == pygame.MOUSEBUTTONUP):
                     for layer in globals.screen_root,globals.current_view:
                         handled,dragging = layer.MouseButtonUp(pos,event.button)

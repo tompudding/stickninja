@@ -71,8 +71,40 @@ class Titles(Mode):
             return TitleStages.COMPLETE
 
 class GameMode(Mode):
+    speed = 12
+    direction_amounts = {pygame.K_a  : Point(-0.01*speed, 0.00),
+                         pygame.K_d : Point( 0.01*speed, 0.00),
+                         pygame.K_w    : Point( 0.00, 0.01*speed),
+                         pygame.K_s  : Point( 0.00,-0.01*speed)}
+    class KeyFlags:
+        LEFT  = 1
+        RIGHT = 2
+        UP    = 4
+        DOWN  = 8
+    keyflags = {pygame.K_a  : KeyFlags.LEFT,
+                pygame.K_d : KeyFlags.RIGHT,
+                pygame.K_w    : KeyFlags.UP,
+                pygame.K_s  : KeyFlags.DOWN}
+
     def __init__(self,parent):
         self.parent = parent
+        self.keydownmap = 0
+
+    def KeyDown(self,key):
+        if key in self.direction_amounts:
+            self.keydownmap |= self.keyflags[key]
+            self.parent.player.move_direction += self.direction_amounts[key]
+        elif key == pygame.K_SPACE:
+            self.parent.player.jumping = True
+            self.parent.player.jumped  = False
+
+    def KeyUp(self,key):
+        if key in self.direction_amounts and (self.keydownmap & self.keyflags[key]):
+            self.keydownmap &= (~self.keyflags[key])
+            self.parent.player.move_direction -= self.direction_amounts[key]
+        elif key == pygame.K_SPACE:
+            self.parent.player.jumping = False
+            self.parent.player.jumped  = False
 
     def Update(self):
         self.parent.player.Update()
