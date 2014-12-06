@@ -70,7 +70,7 @@ def bone_multiply(data, amount):
 def reflect_item(data):
     try:
         pos,angle = data
-        return Point(-pos.x,pos.y),math.pi-angle
+        return Point(1-pos.x,pos.y),math.pi-angle
     except TypeError:
         angle = data
         return math.pi-angle

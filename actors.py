@@ -222,7 +222,7 @@ class Actor(object):
         if self.jumping and not self.jumped:
             self.move_speed.y += self.jump_amount
             self.jumped = True
-        self.move_speed.x *= 0.8*(1-(elapsed/1000.0))
+        self.move_speed.x *= 0.5*(1-(elapsed/1000.0))
         self.move_speed.y += globals.gravity*elapsed*0.03
 
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
