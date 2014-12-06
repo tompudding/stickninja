@@ -11,7 +11,7 @@ def Init(w,h):
     """
     One time initialisation of the screen
     """
-    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glClearColor(1.0, 1.0, 1.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
     glMatrixMode(GL_PROJECTION)
@@ -25,7 +25,7 @@ def Init(w,h):
     glAlphaFunc(GL_GREATER, 0.25);
     glEnable(GL_ALPHA_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-    glColor4f(1.0,1.0,1.0,1.0)
+    glColor4f(0.0,0.0,0.0,1.0)
 
 def ResetState():
     glLoadIdentity()

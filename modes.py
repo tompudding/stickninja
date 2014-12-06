@@ -9,10 +9,10 @@ class Mode(object):
     """ Abstract base class to represent game modes """
     def __init__(self,parent):
         self.parent = parent
-    
+
     def KeyDown(self,key):
         pass
-    
+
     def KeyUp(self,key):
         pass
 
@@ -30,7 +30,7 @@ class TitleStages(object):
     WAIT     = 4
 
 class Titles(Mode):
-    blurb = "SKELETON"
+    blurb = "STICK NINJA"
     def __init__(self,parent):
         self.parent          = parent
         self.start           = pygame.time.get_ticks()
@@ -55,7 +55,7 @@ class Titles(Mode):
     def KeyDown(self,key):
         self.stage = TitleStages.COMPLETE
 
-    def Update(self,t):        
+    def Update(self,t):
         self.elapsed = t - self.start
         self.stage = self.handlers[self.stage](t)
 
@@ -70,7 +70,7 @@ class Titles(Mode):
 class GameMode(Mode):
     def __init__(self,parent):
         self.parent = parent
-        
+
 
 class GameOver(Mode):
     blurb = "GAME OVER"
@@ -85,7 +85,7 @@ class GameOver(Mode):
                                       pos    = Point(0,0),
                                       tr     = Point(1,1),
                                       colour = (0,0,0,0.6))
-        
+
         bl = self.parent.GetRelative(Point(0,0))
         tr = bl + self.parent.GetRelative(globals.screen)
         self.blurb_text = ui.TextBox(parent = globals.screen_root,
