@@ -221,10 +221,13 @@ class Actor(object):
         self.last_update = globals.time
 
         self.move_speed.x += self.move_direction.x*elapsed*0.03
+        #Apply friction
+        self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
+
         if self.jumping and not self.jumped:
             self.move_speed.y += self.jump_amount
             self.jumped = True
-        self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
+
         self.move_speed.y += globals.gravity*elapsed*0.03
 
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
@@ -238,7 +241,7 @@ class Actor(object):
         if dir != None and dir != self.dir:
             self.dir = dir
 
-        if abs(amount.x) <  0.0001:
+        if abs(amount.x) <  0.01:
             self.still = True
             self.walked = 0
             amount.x = 0
@@ -258,6 +261,7 @@ class Actor(object):
             self.current_animation = new_animation
 
         amount.y = 0
+
         self.set_pos(self.pos + amount)
 
     def set_pos(self,pos):
