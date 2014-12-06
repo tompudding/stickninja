@@ -209,6 +209,8 @@ class Actor(object):
             child.Update()
         if self.end_frame and globals.time > self.end_frame:
             self.end_frame = None
+            self.walked = 0
+
         self.Move()
 
     def Move(self):
@@ -250,7 +252,7 @@ class Actor(object):
             #We can set the frame directly since we're not transitioning
             if new_animation is not self.current_animation:
                 #we want to quickly transition to the first frame of the new animation
-                self.set_key_frame(new_animation.get_frame(0),100)
+                self.set_key_frame(new_animation.get_frame(0),200)
             else:
                 self.set_key_frame(self.current_animation.get_frame(self.walked*800.0),0)
             self.current_animation = new_animation
