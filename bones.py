@@ -46,9 +46,9 @@ def bone_difference(start, end):
     try:
         start_pos, start_angle = start
         end_pos,   end_angle = end
-        return end_pos - start_pos,angle_difference(end_angle, start_angle)
+        return end_pos - start_pos,angle_difference(start_angle, end_angle)
     except TypeError:
-        return angle_difference(end, start)
+        return angle_difference(start, end)
 
 def bone_add(start, end):
     try:

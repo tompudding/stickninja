@@ -109,7 +109,7 @@ class FrameTransition(object):
     def __init__(self,start,end,duration):
         self.start = start
         self.end = end
-        self.duration = duration
+        self.duration = float(duration)
         self.change = bones.FrameDifference(self.start,self.end)
 
     def get_frame(self,t):
@@ -177,7 +177,7 @@ class Actor(object):
                       Bones.RIGHT_CALF    : self.right_calf}
 
         self.walking = {Directions.RIGHT : Animation(walk_cycle_right, (100,300,300,200,100,300,300,200)),
-                        Directions.LEFT  : Animation(walk_cycle_left, (100,300,300,200,100,300,300,200))}
+                        Directions.LEFT  : Animation(walk_cycle_left[::-1], (100,300,300,200,100,300,300,200))}
 
         self.standing = {Directions.RIGHT : Animation([standing_right,standing_right],(100,100)),
                          Directions.LEFT  : Animation([standing_left,standing_left],(100,100))}
@@ -252,7 +252,7 @@ class Actor(object):
                 #we want to quickly transition to the first frame of the new animation
                 self.set_key_frame(new_animation.get_frame(0),100)
             else:
-                self.set_key_frame(self.current_animation.get_frame(self.walked*30.0),0)
+                self.set_key_frame(self.current_animation.get_frame(self.walked*800.0),0)
             self.current_animation = new_animation
 
 class Ninja(Actor):
