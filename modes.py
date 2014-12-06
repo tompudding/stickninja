@@ -16,6 +16,9 @@ class Mode(object):
     def KeyUp(self,key):
         pass
 
+    def MouseMotion(self,pos,rel):
+        pass
+
     def MouseButtonDown(self,pos,button):
         return False,False
 
@@ -74,7 +77,7 @@ class GameMode(Mode):
     speed = 200
     direction_amounts = {pygame.K_a  : Point(-0.01*speed, 0.00),
                          pygame.K_d : Point( 0.01*speed, 0.00),
-                         pygame.K_w    : Point( 0.00, 0.04*speed),
+                         pygame.K_w    : Point( 0.00, 0.045*speed),
                          pygame.K_s  : Point( 0.00,-0.01*speed),
                          }
     inv_direction_amounts = {pygame.K_a  : Point(0.01*speed, 0.00),
@@ -84,6 +87,8 @@ class GameMode(Mode):
                          }
     direction_amounts[pygame.K_RIGHT] = direction_amounts[pygame.K_d]
     direction_amounts[pygame.K_LEFT] = direction_amounts[pygame.K_a]
+    direction_amounts[pygame.K_UP] = direction_amounts[pygame.K_w]
+    direction_amounts[pygame.K_DOWN] = direction_amounts[pygame.K_s]
     class KeyFlags:
         LEFT  = 1
         RIGHT = 2
@@ -95,6 +100,9 @@ class GameMode(Mode):
                 pygame.K_s  : KeyFlags.DOWN}
     keyflags[pygame.K_RIGHT] = KeyFlags.RIGHT
     keyflags[pygame.K_LEFT] = KeyFlags.LEFT
+    keyflags[pygame.K_UP] = KeyFlags.UP
+    keyflags[pygame.K_DOWN] = KeyFlags.DOWN
+    jump_keys = [pygame.K_w,pygame.K_UP]
 
     def __init__(self,parent):
         self.parent = parent
@@ -104,14 +112,22 @@ class GameMode(Mode):
         if key in self.direction_amounts:
             if not self.keydownmap&self.keyflags[key]:
                 self.keydownmap |= self.keyflags[key]
-                self.parent.player.move_direction += self.direction_amounts[key]
+                if key in self.jump_keys:
+                    if self.parent.player.on_ground:
+                        self.parent.player.move_direction.y = self.direction_amounts[key].y
+                else:
+                    self.parent.player.move_direction += self.direction_amounts[key]
 
     def KeyUp(self,key):
         if key in self.direction_amounts and (self.keydownmap & self.keyflags[key]):
             if self.keydownmap&self.keyflags[key]:
                 self.keydownmap &= (~self.keyflags[key])
-                self.parent.player.move_direction += self.inv_direction_amounts[key]
+                if key not in self.jump_keys:
+                    self.parent.player.move_direction -= self.direction_amounts[key]
 
+    def MouseMotion(self,pos,rel):
+        #print pos
+        self.parent.player.MouseMotion(pos,rel)
 
     def Update(self):
         self.parent.player.Update()

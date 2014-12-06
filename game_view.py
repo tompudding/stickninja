@@ -19,7 +19,7 @@ class GameView(ui.RootElement):
         #self.mode = modes.LevelOne(self)
         self.StartMusic()
         self.border = ui.Border(self,Point(0,0),Point(1,1),colour=drawing.constants.colours.black,line_width=2)
-        self.player = actors.Ninja(self.GetAbsolute(Point(0.5,0)))
+        self.player = actors.Player(self.GetAbsolute(Point(0.5,0)))
 
     def StartMusic(self):
         pass
@@ -55,4 +55,8 @@ class GameView(ui.RootElement):
                 self.music_playing = True
                 pygame.mixer.music.set_volume(1)
         self.mode.KeyUp(key)
+
+    def MouseMotion(self,pos,rel,handled):
+        self.mode.MouseMotion(pos,rel)
+
 

@@ -215,7 +215,7 @@ class Actor(object):
     height = 20
     scale = 1.5
     size = Point(width*scale,height*scale)
-    jump_amount = 3
+    jump_amount = 4
     def __init__(self,pos):
         self.set_pos(pos)
         self.end_frame = None
@@ -313,13 +313,14 @@ class Actor(object):
             elif self.move_direction.y < 0:
                 #crouching
                 self.stance = Stances.CROUCH
-            if self.stance != Stances.CROUCH:
-                self.move_speed.x += self.move_direction.x*elapsed*0.03
-            else:
-                self.move_speed.x += self.move_direction.x*elapsed*0.03*0.6
 
-            #Apply friction
-            self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
+        if self.stance != Stances.CROUCH:
+            self.move_speed.x += self.move_direction.x*elapsed*0.03
+        else:
+            self.move_speed.x += self.move_direction.x*elapsed*0.03*0.6
+
+        #Apply friction
+        self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
 
 
         self.move_speed.y += globals.gravity*elapsed*0.03
@@ -327,13 +328,13 @@ class Actor(object):
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
         self.walked += amount.x
 
-        dir = None
-        if amount.x > 0:
-            dir = Directions.RIGHT
-        elif amount.x < 0:
-            dir = Directions.LEFT
-        if dir != None and dir != self.dir:
-            self.dir = dir
+        # dir = None
+        # if amount.x > 0:
+        #     dir = Directions.RIGHT
+        # elif amount.x < 0:
+        #     dir = Directions.LEFT
+        # if dir != None and dir != self.dir:
+        #     self.dir = dir
 
         if abs(amount.x) <  0.01:
             self.still = True
@@ -378,3 +379,23 @@ class Actor(object):
 
 class Ninja(Actor):
     initial_health = 100
+
+class Player(Ninja):
+    def __init__(self, *args, **kwargs):
+        super(Player,self).__init__(*args, **kwargs)
+        self.mouse_pos = Point(0,0)
+
+    def MouseMotion(self,pos,rel):
+        self.mouse_pos = pos
+
+    def Update(self):
+        super(Player,self).Update()
+        diff = self.mouse_pos - self.torso.end_pos_abs
+        distance,angle = cmath.polar(complex(diff.x,diff.y))
+
+        if abs(angle)*2 > math.pi:
+            self.dir = Directions.LEFT
+        else:
+            self.dir = Directions.RIGHT
+
+
