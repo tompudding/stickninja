@@ -111,12 +111,18 @@ class Bone(object):
     def add_child(self,child):
         self.children.append(child)
 
-    def set_key_frame(self,pos,angle,duration):
+    def set_key_frame(self,pos,angle,duration,damping=1.0):
         if not duration:
             #This is instant so just set them
-            self.pos = pos
-            self.angle = angle
-            self.keyframe_end = self.keyframe_start = None
+            if damping == 1.0:
+                self.pos = pos
+                self.angle = angle
+            else:
+                #1.0 is entirely the request, 0.0 is entirely the current
+                self.pos = self.pos + (pos-self.pos)*damping
+                angle_change = angle_difference(self.angle,angle)
+                self.angle = self.angle + angle_change*damping
+                self.keyframe_end = self.keyframe_start = None
             return
         self.keyframe_end   = globals.time + duration
         self.keyframe_start = globals.time

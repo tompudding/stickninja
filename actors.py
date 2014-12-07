@@ -95,7 +95,7 @@ class Actor(object):
     def add_child(self,child):
         self.children.append(child)
 
-    def set_key_frame(self,frame,duration):
+    def set_key_frame(self,frame,duration,damping=1.0):
         if duration:
             self.end_frame = globals.time + duration
         else:
@@ -107,7 +107,7 @@ class Actor(object):
             except TypeError:
                 pos = Point(0,0)
                 angle = data
-            self.bones[bone].set_key_frame(pos,angle,duration)
+            self.bones[bone].set_key_frame(pos,angle,duration,damping)
 
     def add_key_frame(self,frame,duration):
         self.pending_frames.append( (frame, duration) )
@@ -185,10 +185,15 @@ class Actor(object):
 
         if self.punching:
             elapsed = globals.time - self.punching.start
-            if elapsed > self.punching.duration:
+            if elapsed > self.punching.damping:
                 self.punching = False
             else:
-                self.set_key_frame(self.punching.get_frame(globals.time - self.punching.start),0)
+                damping = 1.0
+                if elapsed > self.punching.duration:
+                    damping = (elapsed - self.punching.duration)/self.punching.damping_duration
+                    damping = 1.0 - damping
+                #transition smoothly back to where it should be
+                self.set_key_frame(self.punching.get_frame(globals.time - self.punching.start),0,damping=damping)
 
         target = self.pos + amount
         if target.y < 0:
@@ -213,8 +218,9 @@ class Actor(object):
         self.end_pos_abs = pos
 
     def punch(self,diff):
+        if self.punching:
+            return
         self.punching = animation_data.Punch(self.bones, self.punch_duration, diff)
-        print 'punch',diff
 
 class Ninja(Actor):
     initial_health = 100
