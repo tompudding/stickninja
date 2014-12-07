@@ -24,43 +24,6 @@ class Stances:
     STANDING = 0
     CROUCH   = 1
 
-class FrameTransition(object):
-    def __init__(self,start,end,duration):
-        self.start = start
-        self.end = end
-        self.duration = float(duration)
-        self.change = bones.FrameDifference(self.start,self.end)
-
-    def get_frame(self,t):
-        return bones.add((self.change*(t/self.duration)),self.start)
-
-class Animation(object):
-    def __init__(self,frames,durations):
-        self.frames = []
-        self.total_duration = 0
-        for i in xrange(len(frames)):
-            start_frame = frames[i]
-            end_frame = frames[(i+1)%len(frames)]
-            duration = durations[i]
-            self.total_duration += duration
-            self.frames.append(FrameTransition(start_frame,end_frame,duration))
-
-    def get_frame(self,t):
-        t %= self.total_duration
-        orig = t
-        for frame in self.frames:
-            if frame.duration > t:
-                return frame.get_frame(t)
-            t -= frame.duration
-        raise Bobbins
-
-class StaticFrame(object):
-    def __init__(self,frame):
-        self.frame = frame
-
-    def get_frame(self,t):
-        return self.frame
-
 class Actor(object):
     width  = 10
     height = 20
@@ -93,6 +56,7 @@ class Actor(object):
         self.stance = Stances.STANDING
         self.transition_requested = False
         self.still = True
+        self.punching = None
 
         self.bones = {Bones.TORSO         : self.torso,
                       Bones.HEAD          : self.head,
@@ -106,22 +70,27 @@ class Actor(object):
                       Bones.RIGHT_THIGH   : self.right_thigh,
                       Bones.RIGHT_CALF    : self.right_calf}
 
-        self.walking = {Directions.RIGHT : {Stances.STANDING : Animation(animation_data.walk_cycle_right, (100,300,300,200,100,300,300,200)),
-                                            Stances.CROUCH   : Animation(animation_data.crouch_cycle_right, (200,200,200,200))},
-                        Directions.LEFT  : {Stances.STANDING : Animation(animation_data.walk_cycle_left[::-1], (100,300,300,200,100,300,300,200)),
-                                            Stances.CROUCH   : Animation(animation_data.crouch_cycle_left[::-1], (200,200,200,200))}}
+        self.walking = {Directions.RIGHT : {Stances.STANDING : animation_data.Animation(animation_data.walk_cycle_right,
+                                                                                        (100,300,300,200,100,300,300,200)),
+                                            Stances.CROUCH   : animation_data.Animation(animation_data.crouch_cycle_right,
+                                                                                        (200,200,200,200))},
+                        Directions.LEFT  : {Stances.STANDING : animation_data.Animation(animation_data.walk_cycle_left[::-1],
+                                                                                        (100,300,300,200,100,300,300,200)),
+                                            Stances.CROUCH   : animation_data.Animation(animation_data.crouch_cycle_left[::-1],
+                                                                                        (200,200,200,200))}}
 
-        self.standing = {Directions.RIGHT : {Stances.STANDING : StaticFrame(animation_data.standing_right),
-                                             Stances.CROUCH   : StaticFrame(animation_data.crouch_right)},
-                         Directions.LEFT  : {Stances.STANDING : StaticFrame(animation_data.standing_left),
-                                             Stances.CROUCH   : StaticFrame(animation_data.crouch_left)}}
+        self.standing = {Directions.RIGHT : {Stances.STANDING : animation_data.StaticFrame(animation_data.standing_right),
+                                             Stances.CROUCH   : animation_data.StaticFrame(animation_data.crouch_right)},
+                         Directions.LEFT  : {Stances.STANDING : animation_data.StaticFrame(animation_data.standing_left),
+                                             Stances.CROUCH   : animation_data.StaticFrame(animation_data.crouch_left)}}
 
         self.current_animation = self.standing[self.dir][self.stance]
 
         self.arm_angle_distance = {}
         for direction in (Directions.LEFT,Directions.RIGHT):
             self.arm_angle_distance[direction] = {stance : bones.angle_difference(anim.frame[bones.Bones.RIGHT_BICEP],
-                                                                                  anim.frame[bones.Bones.LEFT_BICEP]) for stance,anim in self.standing[direction].iteritems()}
+                                                                                  anim.frame[bones.Bones.LEFT_BICEP])
+                                                  for stance,anim in self.standing[direction].iteritems()}
 
     def add_child(self,child):
         self.children.append(child)
@@ -214,6 +183,13 @@ class Actor(object):
                 self.set_key_frame(self.current_animation.get_frame(self.walked*24.0),0)
             self.current_animation = new_animation
 
+        if self.punching:
+            elapsed = globals.time - self.punching.start
+            if elapsed > self.punching.duration:
+                self.punching = False
+            else:
+                self.set_key_frame(self.punching.get_frame(globals.time - self.punching.start),0)
+
         target = self.pos + amount
         if target.y < 0:
             amount.y = -self.pos.y
@@ -235,6 +211,9 @@ class Actor(object):
         self.pos = pos
         self.start_pos_abs = pos
         self.end_pos_abs = pos
+
+    def punch(self,pos):
+        print 'punch',pos
 
 class Ninja(Actor):
     initial_health = 100
@@ -276,4 +255,6 @@ class Player(Ninja):
 
 
     def Click(self, pos, button):
-        print pos,button
+        #print pos,button
+        diff = pos - self.torso.end_pos_abs
+        self.punch(diff)
