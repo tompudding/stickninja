@@ -135,7 +135,7 @@ class Actor(object):
 
             if self.move_direction.y > 0:
                 #sort of a jump
-                self.move_speed.y += self.move_direction.y*elapsed*0.03
+                self.move_speed.y += self.move_direction.y*0.5
                 self.move_direction.y = 0
                 self.crouch = False
             elif self.move_direction.y < 0:

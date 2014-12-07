@@ -237,7 +237,7 @@ class Punch(Animation):
         super(Punch,self).__init__(frames,durations)
 
     def active(self):
-        return globals.time < (self.start + self.damping)
+        return globals.time < (self.start + self.duration)
 
     def get_frame(self,t):
         if t > self.duration:

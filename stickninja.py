@@ -23,6 +23,7 @@ def Init():
     globals.tile_dimensions       = Point(16,16)*globals.tile_scale
     globals.sounds                = sounds.Sounds()
     globals.gravity = -0.4
+    globals.tick_rate = 1.0
 
     globals.dirs = globals.types.Directories('resource')
 
@@ -33,7 +34,7 @@ def Init():
     drawing.InitDrawing()
 
     globals.text_manager = drawing.texture.TextManager()
-    globals.time = pygame.time.get_ticks()
+    globals.time = 0
 
 def main():
     """Main loop for the game"""
@@ -42,16 +43,16 @@ def main():
     globals.current_view = globals.game_view = game_view.GameView()
 
     done = False
-    last = 0
+    last = pygame.time.get_ticks()
     clock = pygame.time.Clock()
 
     while not done:
         drawing.NewFrame()
         clock.tick(60)
-        globals.time = t = pygame.time.get_ticks()
-        if t - last > 1000:
-            #print 'FPS:',clock.get_fps()
-            last = t
+        t = pygame.time.get_ticks()
+        elapsed = t - last
+        last = t
+        globals.time += elapsed*globals.tick_rate
 
         globals.current_view.Update()
         globals.current_view.Draw()

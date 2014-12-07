@@ -62,6 +62,7 @@ class GameView(ui.RootElement):
         self.mode.MouseMotion(pos,rel)
 
     def MouseButtonDown(self,pos,button):
+        self.missiles.append(actors.Ball(Point(50,50),Point(3,5),0.2))
         if self.mode:
             return self.mode.MouseButtonDown(pos,button)
         else:
