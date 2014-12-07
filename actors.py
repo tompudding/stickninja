@@ -212,13 +212,16 @@ class Actor(object):
         self.start_pos_abs = pos
         self.end_pos_abs = pos
 
-    def punch(self,pos):
-        print 'punch',pos
+    def punch(self,diff):
+        self.punching = animation_data.Punch(self.bones, self.punch_duration, diff)
+        print 'punch',diff
 
 class Ninja(Actor):
     initial_health = 100
+    punch_duration = 400
 
 class Player(Ninja):
+    punch_duration = 300
     def __init__(self, *args, **kwargs):
         super(Player,self).__init__(*args, **kwargs)
         self.mouse_pos = Point(0,0)

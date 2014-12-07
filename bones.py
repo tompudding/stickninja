@@ -86,7 +86,7 @@ def reflect(keyframe):
 class FrameDifference(object):
     def __init__(self,start,end):
         self.data = {}
-        for bone in Bones.all_bones:
+        for bone in start.viewkeys() & end.viewkeys():
             self.data[bone] = bone_difference(start[bone],end[bone])
 
     def __mul__(self,other):
