@@ -203,6 +203,9 @@ class Actor(object):
         if target.x < 0:
             amount.x = -self.pos.x
 
+        if target.x + self.size.x > globals.game_view.absolute.size.x:
+            amount.x = globals.game_view.absolute.size.x - self.size.x - self.pos.x
+
         target = self.pos + amount
 
         if abs(target.y) < 0.1:
@@ -239,6 +242,8 @@ class Player(Ninja):
         super(Player,self).Update()
         diff = self.mouse_pos - self.torso.end_pos_abs
         distance,angle = cmath.polar(complex(diff.x,diff.y))
+        if self.punching:
+            return
 
         if abs(angle)*2 > math.pi:
             self.dir = Directions.LEFT
@@ -247,6 +252,8 @@ class Player(Ninja):
 
         if abs(abs(angle)-0.5*math.pi) < 0.4:
             return
+
+
 
         frame = self.standing[self.dir][self.stance].frame
         aad = self.arm_angle_distance[self.dir][self.stance]

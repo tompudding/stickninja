@@ -1,1 +1,1 @@
-petscii.png:tiles_atlas_0.png:0:448:128:64
+resource/sprites/shuriken.png:tiles_atlas_0.png:0:0.0:128:128
