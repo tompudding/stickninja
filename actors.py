@@ -272,6 +272,11 @@ class Actor(object):
 
         self.current_animation = self.standing[self.dir][self.stance]
 
+        self.arm_angle_distance = {}
+        for direction in (Directions.LEFT,Directions.RIGHT):
+            self.arm_angle_distance[direction] = {stance : bones.angle_difference(anim.frame[bones.Bones.RIGHT_BICEP],
+                                                                                  anim.frame[bones.Bones.LEFT_BICEP]) for stance,anim in self.standing[direction].iteritems()}
+
     def add_child(self,child):
         self.children.append(child)
 
@@ -416,10 +421,8 @@ class Player(Ninja):
             return
 
         frame = self.standing[self.dir][self.stance].frame
+        aad = self.arm_angle_distance[self.dir][self.stance]
 
-        arm_angle_distance = bones.angle_difference(frame[bones.Bones.RIGHT_BICEP],
-                                                    frame[bones.Bones.LEFT_BICEP])
-
-        frame[bones.Bones.RIGHT_BICEP] = angle - arm_angle_distance/2
-        frame[bones.Bones.LEFT_BICEP] = angle + arm_angle_distance/2
+        frame[bones.Bones.RIGHT_BICEP] = angle - aad/2
+        frame[bones.Bones.LEFT_BICEP] = angle + aad/2
 
