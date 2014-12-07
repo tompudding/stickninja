@@ -40,10 +40,10 @@ class Actor(object):
         self.torso         = bones.LineBone(self,4*self.scale)
         self.neck          = bones.LineBone(self.torso,1*self.scale)
         self.head          = bones.CircleBone(self.neck,2*self.scale)
-        self.left_bicep    = bones.LineBone(self.torso,3*self.scale)
-        self.left_forearm  = bones.LineBone(self.left_bicep,3*self.scale)
-        self.right_bicep   = bones.LineBone(self.torso,3*self.scale)
-        self.right_forearm = bones.LineBone(self.right_bicep,3*self.scale)
+        self.left_bicep    = bones.LineBone(self.torso,3.5*self.scale)
+        self.left_forearm  = bones.LineBone(self.left_bicep,3.5*self.scale)
+        self.right_bicep   = bones.LineBone(self.torso,3.5*self.scale)
+        self.right_forearm = bones.LineBone(self.right_bicep,3.5*self.scale)
         self.left_thigh    = bones.LineBone(self.torso, 4*self.scale, end = bones.ends.START)
         self.left_calf     = bones.LineBone(self.left_thigh, 3*self.scale)
         self.right_thigh   = bones.LineBone(self.torso, 4*self.scale, end = bones.ends.START)
@@ -231,10 +231,16 @@ class Actor(object):
         if (centre-missile.pos).SquareLength() > (self.height+missile.radius)**2:
             return None
 
+        hit = False
         for bone_type,bone in self.bones.iteritems():
             if bone.collides(missile):
-                print 'collide on bone',bone_type
-                return bone
+                #print 'collide on bone',bone_type
+                if self.punching and self.punching.active() and bone_type in bones.Bones.right_arm:
+                    print 'bingo'
+                    return self.punching.extra_speed, self.punching.extra_rotation
+                #print 'hit'
+                hit = True
+
 
 class Ninja(Actor):
     initial_health = 100
@@ -285,6 +291,7 @@ class Player(Ninja):
         self.punch(diff)
 
 class Missile(object):
+    ghost_duration = 200
     def __init__(self,pos,speed,rotation_speed):
         self.last_update = None
         self.move_speed = speed
@@ -293,6 +300,7 @@ class Missile(object):
         self.quad = drawing.Quad(globals.quad_buffer,tc = globals.atlas.TextureSpriteCoords(self.texture_name))
         self.set_pos(pos, self.angle)
         self.dead = False
+        self.ghost = False
 
     def Update(self):
         if self.dead:
@@ -305,9 +313,18 @@ class Missile(object):
         self.move_speed.y += globals.gravity*elapsed*0.03
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
 
-        bone = globals.game_view.player.collides(self)
-        if bone:
-            print 'collides!',bone
+        if self.ghost:
+            if globals.time > self.ghost:
+                self.ghost = False
+
+        if not self.ghost:
+            collides = globals.game_view.player.collides(self)
+            if collides:
+                extra_speed, extra_rotation = collides
+                self.move_speed += extra_speed
+                self.rotation_speed += extra_rotation
+                self.ghost = globals.time + self.ghost_duration
+            #print 'collides!',bone
 
         target = self.pos + amount
         collision = False

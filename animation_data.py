@@ -5,6 +5,7 @@ from bones import Bones
 import copy
 import math
 import cmath
+import random
 
 standing_frame = {Bones.TORSO : (Point(0.5,0.4),math.pi*0.5),
                   Bones.NECK  : math.pi*0.5,
@@ -206,6 +207,9 @@ class Punch(Animation):
         self.damping = self.duration + self.damping_duration
         #The final frame will be the right arm pointing directly at it
         distance,angle = cmath.polar(complex(diff.x,diff.y))
+        r = cmath.rect(random.random()*5 + 8, angle)
+        self.extra_speed = Point(r.real, r.imag)
+        self.extra_rotation = (random.random()-0.5) * 0.1
 
         final = {bone : angle for bone in bones.Bones.right_arm}
         start = {bone : self.player_bones[bone].angle for bone in bones.Bones.both_arms}
@@ -231,6 +235,9 @@ class Punch(Animation):
                 frame[bones.Bones.LEFT_FOREARM] = math.pi*0.45
         durations = (self.duration*0.5,self.duration*0.3,self.duration*0.2,1)
         super(Punch,self).__init__(frames,durations)
+
+    def active(self):
+        return globals.time < (self.start + self.duration)
 
     def get_frame(self,t):
         if t > self.duration:
