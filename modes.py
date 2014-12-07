@@ -141,8 +141,14 @@ class GameMode(Mode):
 
     def Update(self):
         self.parent.player.Update()
+        new_missiles = []
         for missile in self.parent.missiles:
-            missile.Update()
+            if missile.Update():
+                new_missiles.append(missile)
+            else:
+                missile.Delete()
+
+        self.parent.missiles = new_missiles
 
 
 class GameOver(Mode):

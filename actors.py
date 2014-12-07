@@ -283,16 +283,32 @@ class Missile(object):
         self.angle = 0
         self.quad = drawing.Quad(globals.quad_buffer,tc = globals.atlas.TextureSpriteCoords(self.texture_name))
         self.set_pos(pos, self.angle)
+        self.dead = False
 
     def Update(self):
+        if self.dead:
+            return False
         if self.last_update == None:
             self.last_update = globals.time
-            return
+            return True
         elapsed = globals.time - self.last_update
         self.last_update = globals.time
+        self.move_speed.y += globals.gravity*elapsed*0.03
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
+
+        target = self.pos + amount
+        if target.y < self.radius:
+            #It's hit the floor
+            self.move_speed.y = self.move_speed.y*self.restitution
+            self.move_speed.x *= 0.8
+            self.rotation_speed *= 0.8
+            if self.move_speed.SquareLength() < 0.1:
+                self.dead = True
+            amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
+
         new_angle = self.angle + self.rotation_speed*elapsed*0.03
         self.set_pos(self.pos + amount, new_angle)
+        return True
 
     def set_pos(self,pos,angle):
         self.pos = pos
@@ -303,6 +319,10 @@ class Missile(object):
             vertices.append(self.pos + Point(r.real, r.imag))
         self.quad.SetAllVertices(vertices,100)
 
+    def Delete(self):
+        self.quad.Delete()
+
 class Shuriken(Missile):
     texture_name = 'shuriken.png'
     radius = 4
+    restitution = -0.5
