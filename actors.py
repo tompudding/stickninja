@@ -242,8 +242,8 @@ class Actor(object):
                 if self.punching and self.punching.active() and bone_type in bones.Bones.right_arm:
                     self.add_score(missile.hit_points)
                     return self.punching.extra_speed, self.punching.extra_rotation
-                #print 'hit'
-                hit = True
+                if bone_type in bones.Bones.damageable:
+                    hit = True
         if hit:
             missile.Damage(self)
             return True
@@ -262,14 +262,18 @@ class Player(Ninja):
         self.score = 0
 
         self.health_bar = ui.PowerBar(globals.screen_root, Point(0.8,0.9), Point(0.9,0.93), 1.0, barColours, barBorder)
-        self.score_text = 'Score: %5d'
+        self.focus_bar = ui.PowerBar(globals.screen_root, Point(0.1,0.9), Point(0.2,0.93), 1.0, barColours, barBorder)
+        self.score_format = '%d'
         self.score_box = ui.TextBox(parent = globals.screen_root,
-                                    bl     = Point(0,0.9),
-                                    tr     = Point(0.5,0.95),
-                                    text   = self.score_text % self.score ,
+                                    bl     = Point(0.3,0.9),
+                                    tr     = Point(0.7,0.95),
+                                    text   = self.score_format % self.score ,
                                     textType = drawing.texture.TextTypes.SCREEN_RELATIVE,
                                     scale  = 2,
                                     alignment = drawing.texture.TextAlignments.CENTRE)
+        self.health_text = ui.ImageBox(globals.screen_root, Point(0.8,0.85), Point(0.9,0.9), 'health.png')
+        self.focus_text = ui.ImageBox(globals.screen_root, Point(0.45,0.85), Point(0.55,0.9), 'score.png')
+        self.score_text = ui.ImageBox(globals.screen_root, Point(0.1,0.85), Point(0.2,0.9), 'focus.png')
 
     def MouseMotion(self,pos,rel):
         self.mouse_pos = pos
@@ -317,7 +321,7 @@ class Player(Ninja):
 
     def add_score(self,amount):
         self.score += amount
-        self.score_box.SetText(self.score_text % self.score)
+        self.score_box.SetText(self.score_format % self.score)
 
 class Missile(object):
     ghost_duration = 1000
@@ -352,7 +356,7 @@ class Missile(object):
                 self.ghost = globals.time + self.ghost_duration
             if collides and collides != True:
                 extra_speed, extra_rotation = collides
-                self.move_speed += extra_speed
+                self.move_speed += (extra_speed/self.mass)
                 self.rotation_speed += extra_rotation
 
             #print 'collides!',bone
@@ -387,17 +391,35 @@ class Missile(object):
             vertices.append(self.pos + Point(r.real, r.imag))
         self.quad.SetAllVertices(vertices,100)
 
-    def Delete(self):
-        globals.game_view.player.add_score(self.survive_points)
+    def Delete(self,hit=False):
+        if self.dead:
+            self.quad.Delete()
+            return
+        if not hit:
+            globals.game_view.player.add_score(self.survive_points)
         self.quad.Delete()
+        self.dead = True
 
     def Damage(self, dude):
+        if self.dead:
+            return
         dude.Damage(self.damage_amount)
+        self.Delete(hit=True)
 
 class Shuriken(Missile):
     texture_name = 'shuriken.png'
     radius = 4
-    restitution = -0.1
+    restitution = -0.05
     damage_amount = 10
     hit_points = 100
     survive_points = 10
+    mass = 1.0
+
+class Ball(Missile):
+    texture_name = 'ball.png'
+    radius = 6
+    restitution = -0.5
+    damage_amount = 20
+    hit_points = 250
+    survive_points = 25
+    mass = 1.2

@@ -36,6 +36,7 @@ class Bones:
     right_arm = [RIGHT_BICEP, RIGHT_FOREARM]
     left_arm  = [LEFT_BICEP,  LEFT_FOREARM]
     both_arms = right_arm + left_arm
+    damageable = [TORSO, LEFT_THIGH, LEFT_CALF, RIGHT_THIGH, RIGHT_CALF]
 
 def angle_difference(start, end):
     change   = end - start
