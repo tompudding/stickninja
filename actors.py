@@ -239,6 +239,34 @@ class Actor(object):
             missile.Damage(self)
             return True
 
+    def point_at(self, target):
+        diff = target - self.torso.end_pos_abs
+        distance,angle = cmath.polar(complex(diff.x,diff.y))
+        if self.punching:
+            return
+
+        if abs(angle)*2 > math.pi:
+            self.dir = Directions.LEFT
+        else:
+            self.dir = Directions.RIGHT
+
+        if abs(abs(angle)-0.5*math.pi) < 0.4:
+            return
+
+        frame = self.standing[self.dir][self.stance].frame
+        aad = self.arm_angle_distance[self.dir][self.stance]
+
+        frame[bones.Bones.RIGHT_BICEP] = angle - aad/2
+        frame[bones.Bones.LEFT_BICEP] = angle + aad/2
+
+        #Do the other side too otherwise it looks funny when we cross over...
+        other_dir = Directions.LEFT if self.dir == Directions.RIGHT else Directions.RIGHT
+        aad = self.arm_angle_distance[other_dir][self.stance]
+        angle = math.pi - angle
+        frame = self.standing[other_dir][self.stance].frame
+        frame[bones.Bones.RIGHT_BICEP] = angle - aad/2
+        frame[bones.Bones.LEFT_BICEP] = angle + aad/2
+
 class Ninja(Actor):
     initial_health = 100
     punch_duration = 400
@@ -247,12 +275,8 @@ class Ninja(Actor):
 class Baddie(Ninja):
     gravity = False
     def Update(self):
-        diff = self.pos - globals.game_view.player.pos
-        if diff.x >= 0:
-            self.dir = Directions.LEFT
-        else:
-            self.dir = Directions.RIGHT
         super(Baddie,self).Update()
+        self.point_at(globals.game_view.player.pos)
 
 class Player(Ninja):
     punch_duration = 300
@@ -337,31 +361,7 @@ class Player(Ninja):
 
         super(Player,self).Update()
         diff = self.mouse_pos - self.torso.end_pos_abs
-        distance,angle = cmath.polar(complex(diff.x,diff.y))
-        if self.punching:
-            return
-
-        if abs(angle)*2 > math.pi:
-            self.dir = Directions.LEFT
-        else:
-            self.dir = Directions.RIGHT
-
-        if abs(abs(angle)-0.5*math.pi) < 0.4:
-            return
-
-        frame = self.standing[self.dir][self.stance].frame
-        aad = self.arm_angle_distance[self.dir][self.stance]
-
-        frame[bones.Bones.RIGHT_BICEP] = angle - aad/2
-        frame[bones.Bones.LEFT_BICEP] = angle + aad/2
-
-        #Do the other side too otherwise it looks funny when we cross over...
-        other_dir = Directions.LEFT if self.dir == Directions.RIGHT else Directions.RIGHT
-        aad = self.arm_angle_distance[other_dir][self.stance]
-        angle = math.pi - angle
-        frame = self.standing[other_dir][self.stance].frame
-        frame[bones.Bones.RIGHT_BICEP] = angle - aad/2
-        frame[bones.Bones.LEFT_BICEP] = angle + aad/2
+        self.point_at(self.mouse_pos)
 
     def Damage(self,amount):
         self.health -= amount
