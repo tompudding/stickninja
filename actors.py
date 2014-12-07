@@ -178,8 +178,6 @@ crouch_cycle_right = [crouch_right_walk1,crouch_right_walk2,crouch_right_walk3,c
 crouch_cycle_left = [bones.reflect(wc) for wc in crouch_cycle_right]
 
 
-
-
 class FrameTransition(object):
     def __init__(self,start,end,duration):
         self.start = start
@@ -209,6 +207,13 @@ class Animation(object):
                 return frame.get_frame(t)
             t -= frame.duration
         raise Bobbins
+
+class StaticFrame(object):
+    def __init__(self,frame):
+        self.frame = frame
+
+    def get_frame(self,t):
+        return self.frame
 
 class Actor(object):
     width  = 10
@@ -241,6 +246,7 @@ class Actor(object):
         self.dir = Directions.RIGHT
         self.stance = Stances.STANDING
         self.transition_requested = False
+        self.still = True
 
         self.bones = {Bones.TORSO         : self.torso,
                       Bones.HEAD          : self.head,
@@ -259,10 +265,10 @@ class Actor(object):
                         Directions.LEFT  : {Stances.STANDING : Animation(walk_cycle_left[::-1], (100,300,300,200,100,300,300,200)),
                                             Stances.CROUCH   : Animation(crouch_cycle_left[::-1], (200,200,200,200))}}
 
-        self.standing = {Directions.RIGHT : {Stances.STANDING : Animation([standing_right,standing_right],(100,100)),
-                                             Stances.CROUCH   : Animation([crouch_right,crouch_right],(100,100))},
-                         Directions.LEFT  : {Stances.STANDING : Animation([standing_left,standing_left],(100,100)),
-                                             Stances.CROUCH   : Animation([crouch_left,crouch_left],(100,100))}}
+        self.standing = {Directions.RIGHT : {Stances.STANDING : StaticFrame(standing_right),
+                                             Stances.CROUCH   : StaticFrame(crouch_right)},
+                         Directions.LEFT  : {Stances.STANDING : StaticFrame(standing_left),
+                                             Stances.CROUCH   : StaticFrame(crouch_left)}}
 
         self.current_animation = self.standing[self.dir][self.stance]
 
@@ -400,4 +406,20 @@ class Player(Ninja):
         else:
             self.dir = Directions.RIGHT
 
+        if not self.still:
+            return
+
+        if abs(abs(angle)-0.5*math.pi) < 0.4:
+            return
+
+        if self.end_frame:
+            return
+
+        frame = self.standing[self.dir][self.stance].frame
+
+        arm_angle_distance = bones.angle_difference(frame[bones.Bones.RIGHT_BICEP],
+                                                    frame[bones.Bones.LEFT_BICEP])
+
+        frame[bones.Bones.RIGHT_BICEP] = angle - arm_angle_distance/2
+        frame[bones.Bones.LEFT_BICEP] = angle + arm_angle_distance/2
 
