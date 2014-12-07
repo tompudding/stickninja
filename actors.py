@@ -148,7 +148,7 @@ class Actor(object):
             self.move_speed.x += self.move_direction.x*elapsed*0.03*0.6
 
         #Apply friction
-        self.move_speed.x *= 0.7*(1-(elapsed/1000.0))
+        self.move_speed.x *= math.pow(0.7,(elapsed/20.0))
 
 
         self.move_speed.y += globals.gravity*elapsed*0.03
@@ -279,7 +279,6 @@ class Player(Ninja):
         self.mouse_pos = pos
 
     def EnableFocus(self):
-        print 'a'
         if self.focus <= 0:
             return
         self.focus_start = globals.real_time
@@ -289,7 +288,6 @@ class Player(Ninja):
         self.focus_change = self.focus_target - self.focus_value
 
     def DisableFocus(self):
-        print 'b'
         self.focus_start = globals.real_time
         self.focus_end = globals.real_time + 500
         self.focus_target = 1.0
