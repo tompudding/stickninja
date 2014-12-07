@@ -253,8 +253,6 @@ class Player(Ninja):
         if abs(abs(angle)-0.5*math.pi) < 0.4:
             return
 
-
-
         frame = self.standing[self.dir][self.stance].frame
         aad = self.arm_angle_distance[self.dir][self.stance]
 
@@ -297,9 +295,16 @@ class Missile(object):
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
 
         target = self.pos + amount
-        if target.y < self.radius:
+        collision = False
+        if target.y < self.radius or target.y > globals.game_view.absolute.size.y - self.radius:
             #It's hit the floor
             self.move_speed.y = self.move_speed.y*self.restitution
+            collision = True
+        elif target.x < self.radius or target.x > globals.game_view.absolute.size.x - self.radius:
+            self.move_speed.x = self.move_speed.x*self.restitution
+            collision = True
+
+        if collision:
             self.move_speed.x *= 0.8
             self.rotation_speed *= 0.8
             if self.move_speed.SquareLength() < 0.1:
@@ -325,4 +330,4 @@ class Missile(object):
 class Shuriken(Missile):
     texture_name = 'shuriken.png'
     radius = 4
-    restitution = -0.5
+    restitution = -0.1
