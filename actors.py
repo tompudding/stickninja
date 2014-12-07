@@ -242,14 +242,23 @@ class Actor(object):
 class Ninja(Actor):
     initial_health = 100
     punch_duration = 400
+    gravity = True
+
+class Baddie(Ninja):
     gravity = False
+    def Update(self):
+        diff = self.pos - globals.game_view.player.pos
+        if diff.x >= 0:
+            self.dir = Directions.LEFT
+        else:
+            self.dir = Directions.RIGHT
+        super(Baddie,self).Update()
 
 class Player(Ninja):
     punch_duration = 300
     focus_rate = 0.4
     focus_duration = float(500)
     initial_focus = 5000
-    gravity = True
     def __init__(self, *args, **kwargs):
         super(Player,self).__init__(*args, **kwargs)
         self.mouse_pos = Point(0,0)

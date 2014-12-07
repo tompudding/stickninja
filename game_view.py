@@ -27,7 +27,7 @@ class GameView(ui.RootElement):
         self.platforms = [self.platform1,self.platform2,self.platform3,self.platform4]
 
         self.missiles = []
-        self.enemies = [actors.Ninja(platform.GetAbsolute(Point(0.24,0.25))) for platform in self.platforms]
+        self.enemies = [actors.Baddie(platform.GetAbsolute(Point(0.24,0.25))) for platform in self.platforms]
 
     def StartMusic(self):
         pass
