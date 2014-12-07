@@ -172,6 +172,27 @@ class LineBone(Bone):
         self.end_pos_abs = self.start_pos_abs + (Point(math.cos(self.angle),math.sin(self.angle))*self.length)
         self.line.set_pos(self.start_pos_abs, self.end_pos_abs)
 
+    def collides(self,missile):
+        vector = self.end_pos_abs - self.start_pos_abs
+        diff = self.start_pos_abs - missile.pos
+        a = float(vector.dot_product(vector))
+        b = float(2*diff.dot_product(vector))
+        c = float(diff.dot_product(diff) - (missile.radius*0.9)**2)
+        disc = b*b-4*a*c
+        if disc < 0:
+            return False
+        disc = math.sqrt(disc)
+        t1 = (-b - disc)/(2*a)
+        t2 = (-b + disc)/(2*2)
+
+        if t1 >= 0 and t1 <= 1:
+            return True
+
+        if t2 >= 0 and t2 <= 1:
+            return True
+
+        return False
+
 class CircleBone(Bone):
     def __init__(self,parent,length,end=ends.END):
         self.circle = drawing.shapes.Circle(Point(0,0),length, globals.line_buffer)
@@ -184,3 +205,9 @@ class CircleBone(Bone):
             self.contact = self.parent.end_pos_abs + self.pos
         self.centre = self.contact + (Point(math.cos(self.angle),math.sin(self.angle))*self.length)
         self.circle.set_pos(self.centre)
+
+    def collides(self,missile):
+        diff = missile.pos - self.centre
+        if diff.SquareLength() < ((self.length + missile.radius)**2):
+            return True
+        return False

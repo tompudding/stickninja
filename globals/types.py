@@ -8,7 +8,7 @@ class Point(object):
         self.x = x
         self.y = y
         self.iter_pos = 0
-        
+
     def __add__(self,other_point):
         return Point(self.x + other_point.x, self.y + other_point.y)
 
@@ -80,6 +80,9 @@ class Point(object):
 
     def unit_vector(self):
         return self/self.length()
+
+    def dot_product(self, other):
+        return self.x*other.x + self.y*other.y
 
     def DistanceHeuristic(self,other):
         #return (other-self).diaglength()

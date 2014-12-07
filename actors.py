@@ -225,6 +225,17 @@ class Actor(object):
             return
         self.punching = animation_data.Punch(self, self.punch_duration, diff)
 
+    def collides(self,missile):
+        centre = self.pos + self.size/2
+        #Just skip if it's miles away...
+        if (centre-missile.pos).SquareLength() > (self.height+missile.radius)**2:
+            return None
+
+        for bone_type,bone in self.bones.iteritems():
+            if bone.collides(missile):
+                print 'collide on bone',bone_type
+                return bone
+
 class Ninja(Actor):
     initial_health = 100
     punch_duration = 400
@@ -293,6 +304,10 @@ class Missile(object):
         self.last_update = globals.time
         self.move_speed.y += globals.gravity*elapsed*0.03
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
+
+        bone = globals.game_view.player.collides(self)
+        if bone:
+            print 'collides!',bone
 
         target = self.pos + amount
         collision = False
