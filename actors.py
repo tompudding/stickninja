@@ -156,14 +156,6 @@ class Actor(object):
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
         self.walked += amount.x
 
-        # dir = None
-        # if amount.x > 0:
-        #     dir = Directions.RIGHT
-        # elif amount.x < 0:
-        #     dir = Directions.LEFT
-        # if dir != None and dir != self.dir:
-        #     self.dir = dir
-
         if abs(amount.x) <  0.01:
             self.still = True
             self.walked = 0
@@ -254,12 +246,20 @@ class Ninja(Actor):
 
 class Player(Ninja):
     punch_duration = 300
+    focus_rate = 0.4
+    focus_duration = float(500)
     def __init__(self, *args, **kwargs):
         super(Player,self).__init__(*args, **kwargs)
         self.mouse_pos = Point(0,0)
         barColours = [drawing.constants.colours.red, drawing.constants.colours.yellow, drawing.constants.colours.light_green]
         barBorder = drawing.constants.colours.black
-        self.score = 0
+        self.score          = 0
+        self.focus          = 5000
+        self.focus_start    = None
+        self.focus_end      = None
+        self.focus_target   = None
+        self.focus_value    = None
+        self.focus_change   = None
 
         self.health_bar = ui.PowerBar(globals.screen_root, Point(0.8,0.9), Point(0.9,0.93), 1.0, barColours, barBorder)
         self.focus_bar = ui.PowerBar(globals.screen_root, Point(0.1,0.9), Point(0.2,0.93), 1.0, barColours, barBorder)
@@ -278,7 +278,34 @@ class Player(Ninja):
     def MouseMotion(self,pos,rel):
         self.mouse_pos = pos
 
+    def EnableFocus(self):
+        print 'a'
+        if self.focus <= 0:
+            return
+        self.focus_start = globals.real_time
+        self.focus_end = globals.real_time + 500
+        self.focus_target = self.focus_rate
+        self.focus_value = 1.0
+        self.focus_change = self.focus_target - self.focus_value
+
+    def DisableFocus(self):
+        print 'b'
+        self.focus_start = globals.real_time
+        self.focus_end = globals.real_time + 500
+        self.focus_target = 1.0
+        self.focus_value = globals.tick_rate
+        self.focus_change = self.focus_target - self.focus_value
+
     def Update(self):
+        if self.focus_end:
+            if globals.real_time > self.focus_end:
+                self.focus_end = None
+                globals.tick_rate = self.focus_target
+            else:
+                elapsed = globals.real_time - self.focus_start
+                partial = elapsed / self.focus_duration
+                globals.tick_rate = self.focus_value + self.focus_change*partial
+
         super(Player,self).Update()
         diff = self.mouse_pos - self.torso.end_pos_abs
         distance,angle = cmath.polar(complex(diff.x,diff.y))

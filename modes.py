@@ -119,6 +119,8 @@ class GameMode(Mode):
                         self.parent.player.move_direction.y = self.direction_amounts[key].y
                 else:
                     self.parent.player.move_direction += self.direction_amounts[key]
+        elif key == pygame.K_SPACE:
+            self.parent.player.EnableFocus()
 
     def KeyUp(self,key):
         if key in self.direction_amounts and (self.keydownmap & self.keyflags[key]):
@@ -130,6 +132,8 @@ class GameMode(Mode):
                     self.parent.player.move_direction.y = 0
                 else:
                     self.parent.player.move_direction -= self.direction_amounts[key]
+        elif key == pygame.K_SPACE:
+            self.parent.player.DisableFocus()
 
     def MouseMotion(self,pos,rel):
         #print pos

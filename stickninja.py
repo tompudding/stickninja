@@ -49,7 +49,7 @@ def main():
     while not done:
         drawing.NewFrame()
         clock.tick(60)
-        t = pygame.time.get_ticks()
+        globals.real_time = t = pygame.time.get_ticks()
         elapsed = t - last
         last = t
         globals.time += elapsed*globals.tick_rate
