@@ -75,7 +75,7 @@ class Titles(Mode):
 
 class LevelOne(Mode):
     speed = 200
-    splash = 'round1.png'
+    splash_texture = 'round1.png'
     splash_time = 2000
     splash_gone = 3000
     splash_fade_duration = float(splash_gone-splash_time)
@@ -113,8 +113,9 @@ class LevelOne(Mode):
         self.parent = parent
         self.keydownmap = 0
         self.start = globals.time
-        self.splash = ui.ImageBox(globals.screen_root, Point(0.3,0.4), Point(0.7,0.6), 'round1.png')
+        self.splash = ui.ImageBox(globals.screen_root, Point(0.3,0.4), Point(0.7,0.6), self.splash_texture)
         self.in_splash = True
+        self.bowed = False
 
     def KeyDown(self,key):
         if key in self.direction_amounts:
@@ -152,6 +153,10 @@ class LevelOne(Mode):
 
     def Update(self):
         elapsed = globals.time - self.start
+        if not self.bowed:
+            for enemy in globals.game_view.enemies:
+                enemy.bow()
+            self.bowed = True
         if self.in_splash:
             if elapsed > self.splash_gone:
                 self.splash.Disable()

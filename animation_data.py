@@ -146,7 +146,32 @@ crouch_right_walk4 = {Bones.TORSO : (Point(0.4,0.16),math.pi*0.4),
                       Bones.RIGHT_THIGH : -math.pi*0.4,
                       Bones.RIGHT_CALF : math.pi*1.25}
 
+bow_right_1 = {Bones.TORSO : (Point(0.5,0.4),math.pi*0.5),
+               Bones.NECK  : math.pi*0.5,
+               Bones.HEAD  : math.pi*0.5,
+               Bones.LEFT_BICEP : -0.15*math.pi,
+               Bones.LEFT_FOREARM : math.pi*0.25,
+               Bones.RIGHT_BICEP : -0.25*math.pi,
+               Bones.RIGHT_FOREARM : math.pi*0.25,
+               Bones.LEFT_THIGH : -math.pi*0.45,
+               Bones.LEFT_CALF : -math.pi*0.45,
+               Bones.RIGHT_THIGH : -math.pi*0.55,
+               Bones.RIGHT_CALF : -math.pi*0.55}
 
+bow_right_2 = {Bones.TORSO : (Point(0.5,0.4),math.pi*0.15),
+               Bones.NECK  : math.pi*0.4 ,
+               Bones.HEAD  : math.pi*0.5 ,
+               Bones.LEFT_BICEP : -0.05*math.pi,
+               Bones.LEFT_FOREARM : math.pi*0.4,
+               Bones.RIGHT_BICEP : -0.15*math.pi,
+               Bones.RIGHT_FOREARM : math.pi*0.4,
+               Bones.LEFT_THIGH : -math.pi*0.45,
+               Bones.LEFT_CALF : -math.pi*0.45,
+               Bones.RIGHT_THIGH : -math.pi*0.55,
+               Bones.RIGHT_CALF : -math.pi*0.55}
+
+bow_cycle_right = [bow_right_1,bow_right_2,bow_right_1]
+bow_cycle_left  = [bones.reflect(wc) for wc in bow_cycle_right]
 
 for i in xrange(len(walk_cycle_right)):
     walk = dict(walk_cycle_right[i])
@@ -162,6 +187,7 @@ walk_cycle_left = [bones.reflect(wc) for wc in walk_cycle_right]
 crouch_cycle_right = [crouch_right_walk1,crouch_right_walk2,crouch_right_walk3,crouch_right_walk4]
 crouch_cycle_left = [bones.reflect(wc) for wc in crouch_cycle_right]
 
+
 class FrameTransition(object):
     def __init__(self,start,end,duration):
         self.start = start
@@ -173,8 +199,10 @@ class FrameTransition(object):
         return bones.add((self.change*(t/self.duration)),self.start)
 
 class Animation(object):
+    position_based = True
     def __init__(self,frames,durations):
         self.frames = []
+        self.start = 0
         self.total_duration = 0
         for i in xrange(len(frames)):
             start_frame = frames[i]
@@ -183,7 +211,12 @@ class Animation(object):
             self.total_duration += duration
             self.frames.append(FrameTransition(start_frame,end_frame,duration))
 
-    def get_frame(self,t):
+    def get_frame(self,tim,x):
+        if self.position_based:
+            t = x
+        else:
+            t = tim - self.start
+        self.num_done = t/self.total_duration
         t %= self.total_duration
         orig = t
         for frame in self.frames:
@@ -192,12 +225,23 @@ class Animation(object):
             t -= frame.duration
         raise Bobbins
 
+class TimeBasedAnimation(Animation):
+    position_based = False
+
 class StaticFrame(object):
     def __init__(self,frame):
         self.frame = copy.deepcopy(frame)
 
-    def get_frame(self,t):
+    def get_frame(self,t,x):
         return self.frame
+
+walk_right_anim = Animation(walk_cycle_right, (100,300,300,200,100,300,300,200))
+walk_left_anim = Animation(walk_cycle_left[::-1], (100,300,300,200,100,300,300,200))
+crouch_right_anim = Animation(crouch_cycle_right, (200,200,200,200))
+crouch_left_anim = Animation(crouch_cycle_left[::-1], (200,200,200,200))
+bow_right_anim = TimeBasedAnimation(bow_cycle_right, (500,500,500))
+bow_left_anim = TimeBasedAnimation(bow_cycle_left[::-1], (500,500,500))
+
 
 class Punch(Animation):
     damping_duration = float(100)

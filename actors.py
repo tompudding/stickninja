@@ -41,9 +41,9 @@ class Actor(object):
         self.neck          = bones.LineBone(self.torso,1*self.scale)
         self.head          = bones.CircleBone(self.neck,2*self.scale)
         self.left_bicep    = bones.LineBone(self.torso,3.5*self.scale)
-        self.left_forearm  = bones.LineBone(self.left_bicep,3.5*self.scale)
+        self.left_forearm  = bones.LineBone(self.left_bicep,3*self.scale)
         self.right_bicep   = bones.LineBone(self.torso,3.5*self.scale)
-        self.right_forearm = bones.LineBone(self.right_bicep,3.5*self.scale)
+        self.right_forearm = bones.LineBone(self.right_bicep,3*self.scale)
         self.left_thigh    = bones.LineBone(self.torso, 4*self.scale, end = bones.ends.START)
         self.left_calf     = bones.LineBone(self.left_thigh, 3*self.scale)
         self.right_thigh   = bones.LineBone(self.torso, 4*self.scale, end = bones.ends.START)
@@ -58,6 +58,7 @@ class Actor(object):
         self.still = True
         self.punching = None
         self.health = self.initial_health
+        self.in_bow = False
 
         self.bones = {Bones.TORSO         : self.torso,
                       Bones.HEAD          : self.head,
@@ -71,19 +72,18 @@ class Actor(object):
                       Bones.RIGHT_THIGH   : self.right_thigh,
                       Bones.RIGHT_CALF    : self.right_calf}
 
-        self.walking = {Directions.RIGHT : {Stances.STANDING : animation_data.Animation(animation_data.walk_cycle_right,
-                                                                                        (100,300,300,200,100,300,300,200)),
-                                            Stances.CROUCH   : animation_data.Animation(animation_data.crouch_cycle_right,
-                                                                                        (200,200,200,200))},
-                        Directions.LEFT  : {Stances.STANDING : animation_data.Animation(animation_data.walk_cycle_left[::-1],
-                                                                                        (100,300,300,200,100,300,300,200)),
-                                            Stances.CROUCH   : animation_data.Animation(animation_data.crouch_cycle_left[::-1],
-                                                                                        (200,200,200,200))}}
+        self.walking = {Directions.RIGHT : {Stances.STANDING : animation_data.walk_right_anim,
+                                            Stances.CROUCH   : animation_data.crouch_right_anim},
+                        Directions.LEFT  : {Stances.STANDING : animation_data.walk_left_anim,
+                                            Stances.CROUCH   : animation_data.crouch_left_anim}}
 
         self.standing = {Directions.RIGHT : {Stances.STANDING : animation_data.StaticFrame(animation_data.standing_right),
                                              Stances.CROUCH   : animation_data.StaticFrame(animation_data.crouch_right)},
                          Directions.LEFT  : {Stances.STANDING : animation_data.StaticFrame(animation_data.standing_left),
                                              Stances.CROUCH   : animation_data.StaticFrame(animation_data.crouch_left)}}
+
+        self.bowing = {Directions.RIGHT : animation_data.bow_right_anim,
+                       Directions.LEFT  : animation_data.bow_left_anim}
 
         self.current_animation = self.standing[self.dir][self.stance]
 
@@ -92,6 +92,7 @@ class Actor(object):
             self.arm_angle_distance[direction] = {stance : bones.angle_difference(anim.frame[bones.Bones.RIGHT_BICEP],
                                                                                   anim.frame[bones.Bones.LEFT_BICEP])
                                                   for stance,anim in self.standing[direction].iteritems()}
+        self.set_key_frame(self.current_animation.get_frame(0,0),0)
 
     def add_child(self,child):
         self.children.append(child)
@@ -109,6 +110,9 @@ class Actor(object):
                 pos = Point(0,0)
                 angle = data
             self.bones[bone].set_key_frame(pos,angle,duration,damping)
+
+    def bow(self):
+        self.in_bow = globals.time + 1000
 
     def add_key_frame(self,frame,duration):
         self.pending_frames.append( (frame, duration) )
@@ -160,19 +164,25 @@ class Actor(object):
             self.walked = 0
             amount.x = 0
             self.move_speed.x = 0
-            new_animation = self.standing[self.dir][self.stance]
+            if self.in_bow and globals.time < self.in_bow:
+                new_animation = self.bowing[self.dir]
+            else:
+                self.in_bow = False
+                new_animation = self.standing[self.dir][self.stance]
         else:
             self.still = False
             new_animation = self.walking[self.dir][self.stance]
+
 
         if self.transition_requested or self.end_frame is None:
             self.transition_requested = False
             #We can set the frame directly since we're not transitioning
             if new_animation is not self.current_animation:
                 #we want to quickly transition to the first frame of the new animation
-                self.set_key_frame(new_animation.get_frame(0),100)
+                new_animation.start = globals.time
+                self.set_key_frame(new_animation.get_frame(globals.time,0),100)
             else:
-                self.set_key_frame(self.current_animation.get_frame(self.walked*24.0),0)
+                self.set_key_frame(self.current_animation.get_frame(globals.time,self.walked*24.0),0)
             self.current_animation = new_animation
 
         if self.punching:
