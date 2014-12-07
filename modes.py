@@ -112,6 +112,7 @@ class GameMode(Mode):
         if key in self.direction_amounts:
             if not self.keydownmap&self.keyflags[key]:
                 self.keydownmap |= self.keyflags[key]
+                self.parent.player.transition_requested = True
                 if key in self.jump_keys:
                     if self.parent.player.on_ground:
                         self.parent.player.move_direction.y = self.direction_amounts[key].y

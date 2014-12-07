@@ -240,6 +240,7 @@ class Actor(object):
         self.on_ground = True
         self.dir = Directions.RIGHT
         self.stance = Stances.STANDING
+        self.transition_requested = False
 
         self.bones = {Bones.TORSO         : self.torso,
                       Bones.HEAD          : self.head,
@@ -346,7 +347,8 @@ class Actor(object):
             self.still = False
             new_animation = self.walking[self.dir][self.stance]
 
-        if self.end_frame is None:
+        if self.transition_requested or self.end_frame is None:
+            self.transition_requested = False
             #We can set the frame directly since we're not transitioning
             if new_animation is not self.current_animation:
                 #we want to quickly transition to the first frame of the new animation
