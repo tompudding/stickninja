@@ -229,6 +229,7 @@ class Actor(object):
         if self.punching:
             return
         self.punching = animation_data.Punch(self, self.punch_duration, diff)
+        print 'jim',globals.time,self.punching.start
 
     def collides(self,missile):
         centre = self.pos + self.size/2
@@ -279,7 +280,7 @@ class Actor(object):
 
 class Ninja(Actor):
     initial_health = 100
-    punch_duration = 400
+    punch_duration = 300
     gravity = True
 
 class Baddie(Ninja):
@@ -289,7 +290,6 @@ class Baddie(Ninja):
         self.point_at(globals.game_view.player.pos)
 
 class Player(Ninja):
-    punch_duration = 300
     focus_rate = 0.4
     focus_duration = float(500)
     initial_focus = 5000

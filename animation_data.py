@@ -202,7 +202,7 @@ class Animation(object):
     position_based = True
     def __init__(self,frames,durations):
         self.frames = []
-        self.start = 0
+        self.startx = 0
         self.total_duration = 0
         for i in xrange(len(frames)):
             start_frame = frames[i]
@@ -215,7 +215,7 @@ class Animation(object):
         if self.position_based:
             t = x
         else:
-            t = tim - self.start
+            t = tim - self.startx
         self.num_done = t/self.total_duration
         t %= self.total_duration
         orig = t
@@ -287,4 +287,4 @@ class Punch(Animation):
     def get_frame(self,t):
         if t > self.duration:
             t = self.duration-1
-        return super(Punch,self).get_frame(t)
+        return super(Punch,self).get_frame(0,t)

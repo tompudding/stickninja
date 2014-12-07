@@ -162,13 +162,18 @@ class Level(Mode):
                 self.splash.Disable()
                 self.in_splash = False
                 self.done = globals.time + self.duration
+                self.next_projectile = globals.time
             elif elapsed > self.splash_time:
                 fade_amount = (elapsed - self.splash_time)/self.splash_fade_duration
                 self.splash.quad.SetColour((1,1,1,1-fade_amount))
         else:
             if globals.time > self.done:
                 self.parent.mode = self.next_stage(self.parent)
-
+                return
+            if globals.time >= self.next_projectile:
+                for enemy in self.parent.enemies[:self.num_baddies]:
+                    enemy.punch(self.parent.player.pos - enemy.torso.end_pos_abs)
+                self.next_projectile = globals.time + 1000.0/self.rate
 
         self.parent.player.Update()
         for enemy in self.parent.enemies:
@@ -202,18 +207,18 @@ class LevelTwo(Level):
 
 class LevelThree(Level):
     splash_texture = 'round3.png'
-    num_baddies = 2
+    num_baddies = 3
     duration = 1*1000
-    rate = 2
+    rate = 3
     def __init__(self, *args, **kwargs):
         self.next_stage = LevelFour
         super(LevelThree,self).__init__(*args, **kwargs)
 
 class LevelFour(Level):
     splash_texture = 'round4.png'
-    num_baddies = 2
+    num_baddies = 4
     duration = 1*1000
-    rate = 2
+    rate = 4
     def __init__(self, *args, **kwargs):
         self.next_stage = Success
         super(LevelFour,self).__init__(*args, **kwargs)
