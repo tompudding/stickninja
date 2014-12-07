@@ -103,6 +103,7 @@ class GameMode(Mode):
     keyflags[pygame.K_UP] = KeyFlags.UP
     keyflags[pygame.K_DOWN] = KeyFlags.DOWN
     jump_keys = [pygame.K_w,pygame.K_UP]
+    crouch_keys = [pygame.K_s,pygame.K_DOWN]
 
     def __init__(self,parent):
         self.parent = parent
@@ -123,12 +124,20 @@ class GameMode(Mode):
         if key in self.direction_amounts and (self.keydownmap & self.keyflags[key]):
             if self.keydownmap&self.keyflags[key]:
                 self.keydownmap &= (~self.keyflags[key])
-                if key not in self.jump_keys:
+                if key in self.jump_keys:
+                    return
+                if key in self.crouch_keys:
+                    self.parent.player.move_direction.y = 0
+                else:
                     self.parent.player.move_direction -= self.direction_amounts[key]
 
     def MouseMotion(self,pos,rel):
         #print pos
         self.parent.player.MouseMotion(pos,rel)
+
+    def MouseButtonDown(self,pos,button):
+        self.parent.player.Click(pos,button)
+        return False,False
 
     def Update(self):
         self.parent.player.Update()

@@ -59,4 +59,8 @@ class GameView(ui.RootElement):
     def MouseMotion(self,pos,rel,handled):
         self.mode.MouseMotion(pos,rel)
 
-
+    def MouseButtonDown(self,pos,button):
+        if self.mode:
+            return self.mode.MouseButtonDown(pos,button)
+        else:
+            return False,False

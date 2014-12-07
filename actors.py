@@ -12,6 +12,7 @@ import modes
 import bones
 from bones import Bones
 import copy
+import animation_data
 
 class Directions:
     UP    = 0
@@ -22,161 +23,6 @@ class Directions:
 class Stances:
     STANDING = 0
     CROUCH   = 1
-
-standing_frame = {Bones.TORSO : (Point(0.5,0.4),math.pi*0.5),
-                  Bones.NECK  : math.pi*0.5,
-                  Bones.HEAD  : math.pi*0.5,
-                  Bones.LEFT_BICEP : 0,
-                  Bones.LEFT_FOREARM : 0,
-                  Bones.RIGHT_BICEP : math.pi,
-                  Bones.RIGHT_FOREARM : math.pi,
-                  Bones.LEFT_THIGH : -math.pi*0.45,
-                  Bones.LEFT_CALF : -math.pi*0.45,
-                  Bones.RIGHT_THIGH : -math.pi*0.55,
-                  Bones.RIGHT_CALF : -math.pi*0.55}
-
-walk1 = {Bones.TORSO : (Point(0.5,0.4),math.pi*0.48),
-         Bones.NECK  : math.pi*0.48,
-         Bones.HEAD  : math.pi*0.5,
-         Bones.LEFT_BICEP : -math.pi*0.45,
-         Bones.LEFT_FOREARM : -math.pi*0.3,
-         Bones.RIGHT_BICEP : math.pi*1.25,
-         Bones.RIGHT_FOREARM : math.pi*1.48,
-         Bones.LEFT_THIGH : math.pi*1.35,
-         Bones.LEFT_CALF : math.pi*1.15,
-         Bones.RIGHT_THIGH : -math.pi*0.30,
-         Bones.RIGHT_CALF : -math.pi*0.25}
-
-walk2 = {Bones.TORSO : (Point(0.5,0.35),math.pi*0.48),
-         Bones.NECK  : math.pi*0.48,
-         Bones.HEAD  : math.pi*0.5,
-         Bones.LEFT_BICEP : -math.pi*0.35,
-         Bones.LEFT_FOREARM : -math.pi*0.25,
-         Bones.RIGHT_BICEP : math.pi*1.15,
-         Bones.RIGHT_FOREARM : math.pi*1.3,
-         Bones.LEFT_THIGH : math.pi*1.30,
-         Bones.LEFT_CALF : math.pi*1.05,
-         Bones.RIGHT_THIGH : -math.pi*0.15,
-         Bones.RIGHT_CALF : -math.pi*0.45}
-
-walk3 = {Bones.TORSO : (Point(0.5,0.4),math.pi*0.48),
-         Bones.NECK  : math.pi*0.48,
-         Bones.HEAD  : math.pi*0.5,
-         Bones.LEFT_BICEP : -math.pi*0.49,
-         Bones.LEFT_FOREARM : -math.pi*0.45,
-         Bones.RIGHT_BICEP : math.pi*1.49,
-         Bones.RIGHT_FOREARM : -math.pi*0.48,
-         Bones.LEFT_THIGH : -math.pi*0.45,
-         Bones.LEFT_CALF : math.pi*1.1,
-         Bones.RIGHT_THIGH : -math.pi*0.53,
-         Bones.RIGHT_CALF : -math.pi*0.55}
-
-walk4 = {Bones.TORSO : (Point(0.5,0.45),math.pi*0.47),
-         Bones.NECK  : math.pi*0.47,
-         Bones.HEAD  : math.pi*0.5,
-         Bones.LEFT_BICEP : math.pi*1.4,
-         Bones.LEFT_FOREARM : -math.pi*0.42,
-         Bones.RIGHT_BICEP : -math.pi*0.4,
-         Bones.RIGHT_FOREARM : -math.pi*0.35,
-         Bones.LEFT_THIGH : -math.pi*0.25,
-         Bones.LEFT_CALF : math.pi*1.4,
-         Bones.RIGHT_THIGH : math.pi*1.25,
-         Bones.RIGHT_CALF : math.pi*1.25}
-
-walk_cycle_right = [walk1,walk2,walk3,walk4]
-
-standing_right = {Bones.TORSO : (Point(0.5,0.45),math.pi*0.5),
-                  Bones.NECK  : math.pi*0.5,
-                  Bones.HEAD  : math.pi*0.5,
-                  Bones.LEFT_BICEP : -math.pi*0.25,
-                  Bones.LEFT_FOREARM : math.pi*0.25,
-                  Bones.RIGHT_BICEP : -math.pi*0.1,
-                  Bones.RIGHT_FOREARM : math.pi*0.1,
-                  Bones.LEFT_THIGH : -math.pi*0.48,
-                  Bones.LEFT_CALF : -math.pi*0.5,
-                  Bones.RIGHT_THIGH : -math.pi*0.52,
-                  Bones.RIGHT_CALF : -math.pi*0.5}
-
-standing_left = bones.reflect(standing_right)
-
-crouch_right = {Bones.TORSO : (Point(0.4,0.15),math.pi*0.4),
-                Bones.NECK  : math.pi*0.375,
-                Bones.HEAD  : math.pi*0.5,
-                Bones.LEFT_BICEP : -math.pi*0.27,
-                Bones.LEFT_FOREARM : math.pi*0.23,
-                Bones.RIGHT_BICEP : -math.pi*0.12,
-                Bones.RIGHT_FOREARM : math.pi*0.08,
-                Bones.LEFT_THIGH : -math.pi*0.1,
-                Bones.LEFT_CALF : -math.pi*0.9,
-                Bones.RIGHT_THIGH : -math.pi*0.1,
-                Bones.RIGHT_CALF : -math.pi*0.9}
-
-crouch_left = bones.reflect(crouch_right)
-
-crouch_right_walk1 = {Bones.TORSO : (Point(0.4,0.25),math.pi*0.4),
-                      Bones.NECK  : math.pi*0.375,
-                      Bones.HEAD  : math.pi*0.5,
-                      Bones.LEFT_BICEP : -math.pi*0.45,
-                      Bones.LEFT_FOREARM : math.pi*0.1,
-                      Bones.RIGHT_BICEP : math.pi*1.4,
-                      Bones.RIGHT_FOREARM : -math.pi*0.1,
-                      Bones.LEFT_THIGH : -math.pi*0.4,
-                      Bones.LEFT_CALF : math.pi*1.25,
-                      Bones.RIGHT_THIGH : -math.pi*0.1,
-                      Bones.RIGHT_CALF : -math.pi*0.9}
-
-crouch_right_walk2 = {Bones.TORSO : (Point(0.4,0.16),math.pi*0.4),
-                      Bones.NECK  : math.pi*0.375,
-                      Bones.HEAD  : math.pi*0.5,
-                      Bones.LEFT_BICEP : -math.pi*0.45,
-                      Bones.LEFT_FOREARM : math.pi*0.1,
-                      Bones.RIGHT_BICEP : math.pi*1.4,
-                      Bones.RIGHT_FOREARM : -math.pi*0.1,
-                      Bones.LEFT_THIGH : -math.pi*0.4,
-                      Bones.LEFT_CALF : math.pi*1.25,
-                      Bones.RIGHT_THIGH : -math.pi*0.1,
-                      Bones.RIGHT_CALF : -math.pi*0.9}
-
-crouch_right_walk3 = {Bones.TORSO : (Point(0.4,0.25),math.pi*0.4),
-                      Bones.NECK  : math.pi*0.375,
-                      Bones.HEAD  : math.pi*0.5,
-                      Bones.LEFT_BICEP : -math.pi*0.45,
-                      Bones.LEFT_FOREARM : math.pi*0.1,
-                      Bones.RIGHT_BICEP : math.pi*1.4,
-                      Bones.RIGHT_FOREARM : -math.pi*0.1,
-                      Bones.LEFT_THIGH : -math.pi*0.1,
-                      Bones.LEFT_CALF : -math.pi*0.9,
-                      Bones.RIGHT_THIGH : -math.pi*0.4,
-                      Bones.RIGHT_CALF : math.pi*1.25}
-
-crouch_right_walk4 = {Bones.TORSO : (Point(0.4,0.16),math.pi*0.4),
-                      Bones.NECK  : math.pi*0.375,
-                      Bones.HEAD  : math.pi*0.5,
-                      Bones.LEFT_BICEP : -math.pi*0.45,
-                      Bones.LEFT_FOREARM : math.pi*0.1,
-                      Bones.RIGHT_BICEP : math.pi*1.4,
-                      Bones.RIGHT_FOREARM : -math.pi*0.1,
-                      Bones.LEFT_THIGH : -math.pi*0.1,
-                      Bones.LEFT_CALF : -math.pi*0.9,
-                      Bones.RIGHT_THIGH : -math.pi*0.4,
-                      Bones.RIGHT_CALF : math.pi*1.25}
-
-
-
-for i in xrange(len(walk_cycle_right)):
-    walk = dict(walk_cycle_right[i])
-    for (a,b) in ( (Bones.RIGHT_CALF, Bones.LEFT_CALF),
-                   (Bones.RIGHT_BICEP, Bones.LEFT_BICEP),
-                   (Bones.LEFT_THIGH, Bones.RIGHT_THIGH),
-                   (Bones.LEFT_FOREARM, Bones.RIGHT_FOREARM)):
-        walk[a],walk[b] = walk[b],walk[a]
-    walk_cycle_right.append(walk)
-
-walk_cycle_left = [bones.reflect(wc) for wc in walk_cycle_right]
-
-crouch_cycle_right = [crouch_right_walk1,crouch_right_walk2,crouch_right_walk3,crouch_right_walk4]
-crouch_cycle_left = [bones.reflect(wc) for wc in crouch_cycle_right]
-
 
 class FrameTransition(object):
     def __init__(self,start,end,duration):
@@ -260,15 +106,15 @@ class Actor(object):
                       Bones.RIGHT_THIGH   : self.right_thigh,
                       Bones.RIGHT_CALF    : self.right_calf}
 
-        self.walking = {Directions.RIGHT : {Stances.STANDING : Animation(walk_cycle_right, (100,300,300,200,100,300,300,200)),
-                                            Stances.CROUCH   : Animation(crouch_cycle_right, (200,200,200,200))},
-                        Directions.LEFT  : {Stances.STANDING : Animation(walk_cycle_left[::-1], (100,300,300,200,100,300,300,200)),
-                                            Stances.CROUCH   : Animation(crouch_cycle_left[::-1], (200,200,200,200))}}
+        self.walking = {Directions.RIGHT : {Stances.STANDING : Animation(animation_data.walk_cycle_right, (100,300,300,200,100,300,300,200)),
+                                            Stances.CROUCH   : Animation(animation_data.crouch_cycle_right, (200,200,200,200))},
+                        Directions.LEFT  : {Stances.STANDING : Animation(animation_data.walk_cycle_left[::-1], (100,300,300,200,100,300,300,200)),
+                                            Stances.CROUCH   : Animation(animation_data.crouch_cycle_left[::-1], (200,200,200,200))}}
 
-        self.standing = {Directions.RIGHT : {Stances.STANDING : StaticFrame(standing_right),
-                                             Stances.CROUCH   : StaticFrame(crouch_right)},
-                         Directions.LEFT  : {Stances.STANDING : StaticFrame(standing_left),
-                                             Stances.CROUCH   : StaticFrame(crouch_left)}}
+        self.standing = {Directions.RIGHT : {Stances.STANDING : StaticFrame(animation_data.standing_right),
+                                             Stances.CROUCH   : StaticFrame(animation_data.crouch_right)},
+                         Directions.LEFT  : {Stances.STANDING : StaticFrame(animation_data.standing_left),
+                                             Stances.CROUCH   : StaticFrame(animation_data.crouch_left)}}
 
         self.current_animation = self.standing[self.dir][self.stance]
 
@@ -411,6 +257,9 @@ class Player(Ninja):
         else:
             self.dir = Directions.RIGHT
 
+        if abs(abs(angle)-0.5*math.pi) < 0.4:
+            return
+
         frame = self.standing[self.dir][self.stance].frame
         aad = self.arm_angle_distance[self.dir][self.stance]
 
@@ -425,3 +274,6 @@ class Player(Ninja):
         frame[bones.Bones.RIGHT_BICEP] = angle - aad/2
         frame[bones.Bones.LEFT_BICEP] = angle + aad/2
 
+
+    def Click(self, pos, button):
+        print pos,button
