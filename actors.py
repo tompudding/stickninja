@@ -411,18 +411,17 @@ class Player(Ninja):
         else:
             self.dir = Directions.RIGHT
 
-        if not self.still:
-            return
-
-        if abs(abs(angle)-0.5*math.pi) < 0.4:
-            return
-
-        if self.end_frame:
-            return
-
         frame = self.standing[self.dir][self.stance].frame
         aad = self.arm_angle_distance[self.dir][self.stance]
 
+        frame[bones.Bones.RIGHT_BICEP] = angle - aad/2
+        frame[bones.Bones.LEFT_BICEP] = angle + aad/2
+
+        #Do the other side too otherwise it looks funny when we cross over...
+        other_dir = Directions.LEFT if self.dir == Directions.RIGHT else Directions.RIGHT
+        aad = self.arm_angle_distance[other_dir][self.stance]
+        angle = math.pi - angle
+        frame = self.standing[other_dir][self.stance].frame
         frame[bones.Bones.RIGHT_BICEP] = angle - aad/2
         frame[bones.Bones.LEFT_BICEP] = angle + aad/2
 
