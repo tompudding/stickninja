@@ -6,6 +6,7 @@ import copy
 import math
 import cmath
 import random
+import copy
 
 standing_frame = {Bones.TORSO : (Point(0.5,0.4),math.pi*0.5),
                   Bones.NECK  : math.pi*0.5,
@@ -193,7 +194,7 @@ class Animation(object):
 
 class StaticFrame(object):
     def __init__(self,frame):
-        self.frame = frame
+        self.frame = copy.deepcopy(frame)
 
     def get_frame(self,t):
         return self.frame

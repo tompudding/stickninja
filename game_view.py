@@ -24,7 +24,10 @@ class GameView(ui.RootElement):
         self.platform2 = ui.ImageBox(globals.screen_root, Point(0.1,0.35), Point(0.2,0.375), 'platform.png')
         self.platform3 = ui.ImageBox(globals.screen_root, Point(0.25,0.65), Point(0.35,0.675), 'platform.png')
         self.platform4 = ui.ImageBox(globals.screen_root, Point(0.65,0.65), Point(0.75,0.675), 'platform.png')
+        self.platforms = [self.platform1,self.platform2,self.platform3,self.platform4]
+
         self.missiles = []
+        self.enemies = [actors.Ninja(platform.GetAbsolute(Point(0.24,0.25))) for platform in self.platforms]
 
     def StartMusic(self):
         pass

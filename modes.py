@@ -145,6 +145,8 @@ class LevelOne(Mode):
 
     def Update(self):
         self.parent.player.Update()
+        for enemy in self.parent.enemies:
+            enemy.Update()
         new_missiles = []
         for missile in self.parent.missiles:
             if missile.Update():

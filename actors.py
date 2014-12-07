@@ -149,7 +149,8 @@ class Actor(object):
 
         #Apply friction
         self.move_speed.x *= math.pow(0.7,(elapsed/20.0))
-        self.move_speed.y += globals.gravity*elapsed*0.03
+        if self.gravity:
+            self.move_speed.y += globals.gravity*elapsed*0.03
 
         amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
         self.walked += amount.x
@@ -241,12 +242,14 @@ class Actor(object):
 class Ninja(Actor):
     initial_health = 100
     punch_duration = 400
+    gravity = False
 
 class Player(Ninja):
     punch_duration = 300
     focus_rate = 0.4
     focus_duration = float(500)
     initial_focus = 5000
+    gravity = True
     def __init__(self, *args, **kwargs):
         super(Player,self).__init__(*args, **kwargs)
         self.mouse_pos = Point(0,0)
