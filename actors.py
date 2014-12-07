@@ -57,6 +57,7 @@ class Actor(object):
         self.transition_requested = False
         self.still = True
         self.punching = None
+        self.health = self.initial_health
 
         self.bones = {Bones.TORSO         : self.torso,
                       Bones.HEAD          : self.head,
@@ -236,11 +237,12 @@ class Actor(object):
             if bone.collides(missile):
                 #print 'collide on bone',bone_type
                 if self.punching and self.punching.active() and bone_type in bones.Bones.right_arm:
-                    print 'bingo'
                     return self.punching.extra_speed, self.punching.extra_rotation
                 #print 'hit'
                 hit = True
-
+        if hit:
+            missile.Damage(self)
+            return True
 
 class Ninja(Actor):
     initial_health = 100
@@ -251,6 +253,10 @@ class Player(Ninja):
     def __init__(self, *args, **kwargs):
         super(Player,self).__init__(*args, **kwargs)
         self.mouse_pos = Point(0,0)
+        barColours = [drawing.constants.colours.red, drawing.constants.colours.yellow, drawing.constants.colours.light_green]
+        barBorder = drawing.constants.colours.black
+
+        self.health_bar = ui.PowerBar(globals.screen_root, Point(0.8,0.9), Point(0.9,0.93), 1.0, barColours, barBorder)
 
     def MouseMotion(self,pos,rel):
         self.mouse_pos = pos
@@ -284,6 +290,9 @@ class Player(Ninja):
         frame[bones.Bones.RIGHT_BICEP] = angle - aad/2
         frame[bones.Bones.LEFT_BICEP] = angle + aad/2
 
+    def Damage(self,amount):
+        self.health -= amount
+        self.health_bar.SetBarLevel(float(self.health)/self.initial_health)
 
     def Click(self, pos, button):
         #print pos,button
@@ -291,7 +300,7 @@ class Player(Ninja):
         self.punch(diff)
 
 class Missile(object):
-    ghost_duration = 200
+    ghost_duration = 1000
     def __init__(self,pos,speed,rotation_speed):
         self.last_update = None
         self.move_speed = speed
@@ -320,10 +329,12 @@ class Missile(object):
         if not self.ghost:
             collides = globals.game_view.player.collides(self)
             if collides:
+                self.ghost = globals.time + self.ghost_duration
+            if collides and collides != True:
                 extra_speed, extra_rotation = collides
                 self.move_speed += extra_speed
                 self.rotation_speed += extra_rotation
-                self.ghost = globals.time + self.ghost_duration
+
             #print 'collides!',bone
 
         target = self.pos + amount
@@ -359,7 +370,11 @@ class Missile(object):
     def Delete(self):
         self.quad.Delete()
 
+    def Damage(self, dude):
+        dude.Damage(self.damage_amount)
+
 class Shuriken(Missile):
     texture_name = 'shuriken.png'
     radius = 4
     restitution = -0.1
+    damage_amount = 10
