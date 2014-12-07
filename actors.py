@@ -220,7 +220,7 @@ class Actor(object):
     def punch(self,diff):
         if self.punching:
             return
-        self.punching = animation_data.Punch(self.bones, self.punch_duration, diff)
+        self.punching = animation_data.Punch(self, self.punch_duration, diff)
 
 class Ninja(Actor):
     initial_health = 100
