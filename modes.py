@@ -75,6 +75,10 @@ class Titles(Mode):
 
 class LevelOne(Mode):
     speed = 200
+    splash = 'round1.png'
+    splash_time = 2000
+    splash_gone = 3000
+    splash_fade_duration = float(splash_gone-splash_time)
     direction_amounts = {pygame.K_a  : Point(-0.01*speed, 0.00),
                          pygame.K_d : Point( 0.01*speed, 0.00),
                          pygame.K_w    : Point( 0.00, 0.045*speed),
@@ -108,6 +112,9 @@ class LevelOne(Mode):
     def __init__(self,parent):
         self.parent = parent
         self.keydownmap = 0
+        self.start = globals.time
+        self.splash = ui.ImageBox(globals.screen_root, Point(0.3,0.4), Point(0.7,0.6), 'round1.png')
+        self.in_splash = True
 
     def KeyDown(self,key):
         if key in self.direction_amounts:
@@ -144,6 +151,18 @@ class LevelOne(Mode):
         return False,False
 
     def Update(self):
+        elapsed = globals.time - self.start
+        if self.in_splash:
+            if elapsed > self.splash_gone:
+                self.splash.Disable()
+                self.in_splash = False
+            elif elapsed > self.splash_time:
+                fade_amount = (elapsed - self.splash_time)/self.splash_fade_duration
+                self.splash.quad.SetColour((1,1,1,1-fade_amount))
+        else:
+            pass
+
+
         self.parent.player.Update()
         for enemy in self.parent.enemies:
             enemy.Update()
