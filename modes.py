@@ -152,10 +152,10 @@ class GameMode(Mode):
 
 
 class GameOver(Mode):
-    blurb = "GAME OVER"
+    blurb = "Final Score %d"
     def __init__(self,parent):
         self.parent          = parent
-        self.blurb           = self.blurb
+        self.blurb           = self.blurb % globals.game_view.player.score
         self.blurb_text      = None
         self.handlers        = {TitleStages.TEXT    : self.TextDraw,
                                 TitleStages.SCROLL  : self.Wait,
@@ -166,13 +166,14 @@ class GameOver(Mode):
                                       colour = (0,0,0,0.6))
 
         bl = self.parent.GetRelative(Point(0,0))
-        tr = bl + self.parent.GetRelative(globals.screen)
+        tr = bl + self.parent.GetRelative(Point(globals.screen.x,globals.screen.y/2))
         self.blurb_text = ui.TextBox(parent = globals.screen_root,
                                      bl     = bl         ,
                                      tr     = tr         ,
                                      text   = self.blurb ,
                                      textType = drawing.texture.TextTypes.SCREEN_RELATIVE,
-                                     scale  = 3)
+                                     scale  = 3,
+                                     alignment = drawing.texture.TextAlignments.CENTRE)
 
         self.start = None
         self.blurb_text.EnableChars(0)
@@ -186,9 +187,9 @@ class GameOver(Mode):
 
     def Update(self):
         if self.start == None:
-            self.start = t
-        self.elapsed = t - self.start
-        self.stage = self.handlers[self.stage](t)
+            self.start = globals.time
+        self.elapsed = globals.time - self.start
+        self.stage = self.handlers[self.stage](globals.time)
         if self.stage == TitleStages.COMPLETE:
             raise sys.exit('Come again soon!')
 

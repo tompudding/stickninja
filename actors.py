@@ -221,6 +221,9 @@ class Actor(object):
         self.start_pos_abs = pos
         self.end_pos_abs = pos
 
+    def add_score(self,amount):
+        pass
+
     def punch(self,diff):
         if self.punching:
             return
@@ -237,6 +240,7 @@ class Actor(object):
             if bone.collides(missile):
                 #print 'collide on bone',bone_type
                 if self.punching and self.punching.active() and bone_type in bones.Bones.right_arm:
+                    self.add_score(missile.hit_points)
                     return self.punching.extra_speed, self.punching.extra_rotation
                 #print 'hit'
                 hit = True
@@ -255,8 +259,17 @@ class Player(Ninja):
         self.mouse_pos = Point(0,0)
         barColours = [drawing.constants.colours.red, drawing.constants.colours.yellow, drawing.constants.colours.light_green]
         barBorder = drawing.constants.colours.black
+        self.score = 0
 
         self.health_bar = ui.PowerBar(globals.screen_root, Point(0.8,0.9), Point(0.9,0.93), 1.0, barColours, barBorder)
+        self.score_text = 'Score: %5d'
+        self.score_box = ui.TextBox(parent = globals.screen_root,
+                                    bl     = Point(0,0.9),
+                                    tr     = Point(0.5,0.95),
+                                    text   = self.score_text % self.score ,
+                                    textType = drawing.texture.TextTypes.SCREEN_RELATIVE,
+                                    scale  = 2,
+                                    alignment = drawing.texture.TextAlignments.CENTRE)
 
     def MouseMotion(self,pos,rel):
         self.mouse_pos = pos
@@ -292,12 +305,19 @@ class Player(Ninja):
 
     def Damage(self,amount):
         self.health -= amount
+        if self.health <= 0:
+            globals.mode = globals.game_view.mode = modes.GameOver(globals.game_view)
+            return
         self.health_bar.SetBarLevel(float(self.health)/self.initial_health)
 
     def Click(self, pos, button):
         #print pos,button
         diff = pos - self.torso.end_pos_abs
         self.punch(diff)
+
+    def add_score(self,amount):
+        self.score += amount
+        self.score_box.SetText(self.score_text % self.score)
 
 class Missile(object):
     ghost_duration = 1000
@@ -368,6 +388,7 @@ class Missile(object):
         self.quad.SetAllVertices(vertices,100)
 
     def Delete(self):
+        globals.game_view.player.add_score(self.survive_points)
         self.quad.Delete()
 
     def Damage(self, dude):
@@ -378,3 +399,5 @@ class Shuriken(Missile):
     radius = 4
     restitution = -0.1
     damage_amount = 10
+    hit_points = 100
+    survive_points = 10
