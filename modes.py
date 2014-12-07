@@ -73,12 +73,12 @@ class Titles(Mode):
         else:
             return TitleStages.COMPLETE
 
-class LevelOne(Mode):
+class Level(Mode):
     speed = 200
-    splash_texture = 'round1.png'
     splash_time = 2000
     splash_gone = 3000
     splash_fade_duration = float(splash_gone-splash_time)
+
     direction_amounts = {pygame.K_a  : Point(-0.01*speed, 0.00),
                          pygame.K_d : Point( 0.01*speed, 0.00),
                          pygame.K_w    : Point( 0.00, 0.045*speed),
@@ -161,11 +161,13 @@ class LevelOne(Mode):
             if elapsed > self.splash_gone:
                 self.splash.Disable()
                 self.in_splash = False
+                self.done = globals.time + self.duration
             elif elapsed > self.splash_time:
                 fade_amount = (elapsed - self.splash_time)/self.splash_fade_duration
                 self.splash.quad.SetColour((1,1,1,1-fade_amount))
         else:
-            pass
+            if globals.time > self.done:
+                self.parent.mode = self.next_stage(self.parent)
 
 
         self.parent.player.Update()
@@ -180,9 +182,45 @@ class LevelOne(Mode):
 
         self.parent.missiles = new_missiles
 
+class LevelOne(Level):
+    splash_texture = 'round1.png'
+    num_baddies = 1
+    duration = 1*1000
+    rate = 1
+    def __init__(self, *args, **kwargs):
+        self.next_stage = LevelTwo
+        super(LevelOne,self).__init__(*args, **kwargs)
+
+class LevelTwo(Level):
+    splash_texture = 'round2.png'
+    num_baddies = 2
+    duration = 1*1000
+    rate = 2
+    def __init__(self, *args, **kwargs):
+        self.next_stage = LevelThree
+        super(LevelTwo,self).__init__(*args, **kwargs)
+
+class LevelThree(Level):
+    splash_texture = 'round3.png'
+    num_baddies = 2
+    duration = 1*1000
+    rate = 2
+    def __init__(self, *args, **kwargs):
+        self.next_stage = LevelFour
+        super(LevelThree,self).__init__(*args, **kwargs)
+
+class LevelFour(Level):
+    splash_texture = 'round4.png'
+    num_baddies = 2
+    duration = 1*1000
+    rate = 2
+    def __init__(self, *args, **kwargs):
+        self.next_stage = Success
+        super(LevelFour,self).__init__(*args, **kwargs)
+
 
 class GameOver(Mode):
-    blurb = "Final Score %d"
+    blurb = "Defeat : Final Score %d"
     def __init__(self,parent):
         self.parent          = parent
         self.blurb           = self.blurb % globals.game_view.player.score
@@ -253,3 +291,6 @@ class GameOver(Mode):
     def MouseButtonDown(self,pos,button):
         self.KeyDown(0)
         return False,False
+
+class Success(GameOver):
+    blurb = "Victory : Final Score %d"
