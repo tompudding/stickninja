@@ -15,11 +15,15 @@ class GameView(ui.RootElement):
         #self.music_playing = False
         super(GameView,self).__init__(Point(0,0),globals.screen)
         #skip titles for development of the main game
-        self.mode = modes.Titles(self)
-        #self.mode = modes.LevelOne(self)
+        #self.mode = modes.Titles(self)
+        self.mode = modes.LevelOne(self)
         self.StartMusic()
         self.border = ui.Border(self,Point(0,0),Point(1,1),colour=drawing.constants.colours.black,line_width=2)
         self.player = actors.Player(self.GetAbsolute(Point(0.5,0)))
+        self.platform1 = ui.ImageBox(globals.screen_root, Point(0.8,0.35), Point(0.9,0.375), 'platform.png')
+        self.platform2 = ui.ImageBox(globals.screen_root, Point(0.1,0.35), Point(0.2,0.375), 'platform.png')
+        self.platform3 = ui.ImageBox(globals.screen_root, Point(0.25,0.65), Point(0.35,0.675), 'platform.png')
+        self.platform4 = ui.ImageBox(globals.screen_root, Point(0.65,0.65), Point(0.75,0.675), 'platform.png')
         self.missiles = []
 
     def StartMusic(self):

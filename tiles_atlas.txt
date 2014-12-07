@@ -3,3 +3,4 @@ resource/sprites/focus.png:tiles_atlas_0.png:128:476.0:128:36
 resource/sprites/health.png:tiles_atlas_0.png:256:476.0:128:36
 resource/sprites/score.png:tiles_atlas_0.png:384:476.0:128:36
 resource/sprites/ball.png:tiles_atlas_0.png:128:412.0:64:64
+resource/sprites/platform.png:tiles_atlas_0.png:192:444.0:128:32

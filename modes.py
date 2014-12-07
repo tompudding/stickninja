@@ -73,7 +73,7 @@ class Titles(Mode):
         else:
             return TitleStages.COMPLETE
 
-class GameMode(Mode):
+class LevelOne(Mode):
     speed = 200
     direction_amounts = {pygame.K_a  : Point(-0.01*speed, 0.00),
                          pygame.K_d : Point( 0.01*speed, 0.00),
