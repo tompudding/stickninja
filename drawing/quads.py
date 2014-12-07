@@ -164,6 +164,15 @@ class Shape(object):
             for i in xrange(self.num_points):
                 self.vertex[i] = (0,0,0)
 
+    def SetAllVertices(self,vertices,z):
+        if self.deleted:
+            return
+        setallvertices(self,self.vertex,vertices,z)
+        if self.old_vertices != None:
+            self.old_vertices = numpy.copy(self.vertex[0:self.num_points])
+            for i in xrange(self.num_points):
+                self.vertex[i] = (0,0,0)
+
     def GetCentre(self):
         return (Point(self.vertex[0][0],self.vertex[0][1]) + Point(self.vertex[2][0],self.vertex[2][1]))/2
 
@@ -196,6 +205,10 @@ def setverticesquad(self,vertex,bl,tr,z):
     vertex[1] = (bl.x,tr.y,z)
     vertex[2] = (tr.x,tr.y,z)
     vertex[3] = (tr.x,bl.y,z)
+
+def setallvertices(self,vertex,vertices,z):
+    for i,v in enumerate(vertices):
+        vertex[i] = (v.x,v.y,z)
 
 def setverticesline(self,vertex,start,end,z):
     vertex[0] = (start.x,start.y,z)

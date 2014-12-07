@@ -20,6 +20,7 @@ class GameView(ui.RootElement):
         self.StartMusic()
         self.border = ui.Border(self,Point(0,0),Point(1,1),colour=drawing.constants.colours.black,line_width=2)
         self.player = actors.Player(self.GetAbsolute(Point(0.5,0)))
+        self.missiles = []
 
     def StartMusic(self):
         pass
@@ -30,6 +31,7 @@ class GameView(ui.RootElement):
         drawing.ResetState()
         drawing.DrawNoTexture(globals.line_buffer)
         drawing.DrawNoTexture(globals.colour_tiles)
+        drawing.DrawAll(globals.quad_buffer,self.atlas.texture.texture)
         drawing.DrawAll(globals.nonstatic_text_buffer,globals.text_manager.atlas.texture.texture)
 
     def Update(self):
@@ -60,6 +62,7 @@ class GameView(ui.RootElement):
         self.mode.MouseMotion(pos,rel)
 
     def MouseButtonDown(self,pos,button):
+        self.missiles.append(actors.Shuriken(Point(1,1),Point(1,1),0.2))
         if self.mode:
             return self.mode.MouseButtonDown(pos,button)
         else:

@@ -274,3 +274,35 @@ class Player(Ninja):
         #print pos,button
         diff = pos - self.torso.end_pos_abs
         self.punch(diff)
+
+class Missile(object):
+    def __init__(self,pos,speed,rotation_speed):
+        self.last_update = None
+        self.move_speed = speed
+        self.rotation_speed = float(rotation_speed)
+        self.angle = 0
+        self.quad = drawing.Quad(globals.quad_buffer,tc = globals.atlas.TextureSpriteCoords(self.texture_name))
+        self.set_pos(pos, self.angle)
+
+    def Update(self):
+        if self.last_update == None:
+            self.last_update = globals.time
+            return
+        elapsed = globals.time - self.last_update
+        self.last_update = globals.time
+        amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
+        new_angle = self.angle + self.rotation_speed*elapsed*0.03
+        self.set_pos(self.pos + amount, new_angle)
+
+    def set_pos(self,pos,angle):
+        self.pos = pos
+        self.angle = angle
+        vertices = []
+        for i in xrange(4):
+            r = cmath.rect(self.radius,self.angle + (math.pi*(i*0.5 + 0.25)))
+            vertices.append(self.pos + Point(r.real, r.imag))
+        self.quad.SetAllVertices(vertices,100)
+
+class Shuriken(Missile):
+    texture_name = 'shuriken.png'
+    radius = 4

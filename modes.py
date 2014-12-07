@@ -141,6 +141,8 @@ class GameMode(Mode):
 
     def Update(self):
         self.parent.player.Update()
+        for missile in self.parent.missiles:
+            missile.Update()
 
 
 class GameOver(Mode):
