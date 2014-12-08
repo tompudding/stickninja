@@ -244,6 +244,7 @@ class Actor(object):
                 if self.punching and self.punching.active() and bone_type in bones.Bones.right_arm:
                     self.add_score(missile.hit_points)
                     self.reset_focus()
+                    globals.sounds.ping.play()
                     return self.punching.extra_speed, self.punching.extra_rotation
                 if bone_type in bones.Bones.damageable:
                     hit = True
@@ -330,6 +331,7 @@ class Player(Ninja):
     def EnableFocus(self):
         if self.focus <= 0:
             return
+        globals.sounds.slow.play()
         self.focus_start = globals.real_time
         self.focus_end = globals.real_time + 500
         self.focus_target = self.focus_rate
@@ -341,6 +343,7 @@ class Player(Ninja):
     def DisableFocus(self):
         if not self.focused:
             return
+        globals.sounds.fast.play()
         self.focus_start = globals.real_time
         self.focus_end = globals.real_time + 500
         self.focus_target = 1.0
@@ -384,6 +387,7 @@ class Player(Ninja):
 
     def Damage(self,amount):
         self.health -= amount
+        random.choice(globals.sounds.hurt).play()
         if self.health <= 0:
             globals.mode = globals.game_view.mode = modes.GameOver(globals.game_view)
             return
@@ -392,6 +396,7 @@ class Player(Ninja):
     def Click(self, pos, button):
         #print pos,button
         diff = pos - self.torso.end_pos_abs
+        random.choice(globals.sounds.punches).play()
         self.punch(diff)
 
     def add_score(self,amount):
@@ -469,6 +474,9 @@ class Missile(object):
     def Delete(self,hit=False):
         if not hit:
             globals.game_view.player.add_score(self.survive_points)
+        else:
+            #amazing hacks you do with less than an hour left
+            self.survive_points = 0
         if self.dead:
             self.quad.Delete()
             return
