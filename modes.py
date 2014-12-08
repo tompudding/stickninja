@@ -178,7 +178,7 @@ class Level(Mode):
                     diff = self.parent.player.pos - enemy.torso.end_pos_abs
                     enemy.punch(diff)
                     source_pos = enemy.right_forearm.end_pos_abs
-                    distance = self.parent.player.pos - source_pos
+                    distance = self.parent.player.head.centre - source_pos
                     y_velocity = random.random()*30*self.speed_range
                     a = globals.gravity*30*30
                     x = math.sqrt(y_velocity**2 + 2*a*distance.y)

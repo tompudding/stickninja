@@ -462,11 +462,11 @@ class Missile(object):
         self.quad.SetAllVertices(vertices,100)
 
     def Delete(self,hit=False):
+        if not hit:
+            globals.game_view.player.add_score(self.survive_points)
         if self.dead:
             self.quad.Delete()
             return
-        if not hit:
-            globals.game_view.player.add_score(self.survive_points)
         self.quad.Delete()
         self.dead = True
 
