@@ -345,6 +345,10 @@ class Player(Ninja):
         self.focus_change = self.focus_target - self.focus_value
         self.focused = False
 
+    def reset_focus(self):
+        change = self.initial_focus - self.focus
+        self.add_focus(change)
+
     def add_focus(self,amount):
         self.focus += amount
         if self.focus < 0:
@@ -393,7 +397,7 @@ class Missile(object):
     ghost_duration = 1000
     def __init__(self,pos,speed,rotation_speed):
         self.last_update = None
-        self.move_speed = speed
+        self.move_speed = speed/self.mass2
         self.rotation_speed = float(rotation_speed)
         self.angle = 0
         self.quad = drawing.Quad(globals.quad_buffer,tc = globals.atlas.TextureSpriteCoords(self.texture_name))
@@ -480,6 +484,7 @@ class Shuriken(Missile):
     hit_points = 100
     survive_points = 10
     mass = 1.0
+    mass2 = 1.0
 
 class Ball(Missile):
     texture_name = 'ball.png'
@@ -489,3 +494,4 @@ class Ball(Missile):
     hit_points = 250
     survive_points = 25
     mass = 1.2
+    mass2 = 2.0

@@ -28,6 +28,9 @@ class GameView(ui.RootElement):
 
         self.missiles = []
         self.enemies = [actors.Baddie(platform.GetAbsolute(Point(0.24,0.25))) for platform in self.platforms]
+        self.enemies[0].projectiles = [actors.Shuriken]
+        for enemy in self.enemies[1:]:
+            enemy.projectiles = [actors.Shuriken,actors.Ball]
 
     def StartMusic(self):
         pass
@@ -69,7 +72,6 @@ class GameView(ui.RootElement):
         self.mode.MouseMotion(pos,rel)
 
     def MouseButtonDown(self,pos,button):
-        self.missiles.append(actors.Ball(Point(50,50),Point(3,5),0.2))
         if self.mode:
             return self.mode.MouseButtonDown(pos,button)
         else:

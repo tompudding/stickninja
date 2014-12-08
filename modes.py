@@ -168,11 +168,31 @@ class Level(Mode):
                 self.splash.quad.SetColour((1,1,1,1-fade_amount))
         else:
             if globals.time > self.done:
+                self.parent.player.reset_focus()
                 self.parent.mode = self.next_stage(self.parent)
+                self.parent.mode.keydownmap = self.keydownmap
+                #This is probably a race condition. Oh well
                 return
             if globals.time >= self.next_projectile:
                 for enemy in self.parent.enemies[:self.num_baddies]:
-                    enemy.punch(self.parent.player.pos - enemy.torso.end_pos_abs)
+                    diff = self.parent.player.pos - enemy.torso.end_pos_abs
+                    enemy.punch(diff)
+                    source_pos = enemy.right_forearm.end_pos_abs
+                    distance = self.parent.player.pos - source_pos
+                    y_velocity = random.random()*30*self.speed_range
+                    a = globals.gravity*30*30
+                    x = math.sqrt(y_velocity**2 + 2*a*distance.y)
+
+                    time_to_fall = max((-y_velocity + x)/a,(-y_velocity - x)/a)
+                    print time_to_fall
+                    x_velocity = distance.x/time_to_fall
+
+                    speed = Point(x_velocity/30.0, y_velocity/30.0)
+                    missile = random.choice(enemy.projectiles)(source_pos,
+                                                               speed,
+                                                               random.random())
+                    self.parent.missiles.append(missile)
+
                 self.next_projectile = globals.time + 1000.0/self.rate
 
         self.parent.player.Update()
@@ -190,8 +210,10 @@ class Level(Mode):
 class LevelOne(Level):
     splash_texture = 'round1.png'
     num_baddies = 1
-    duration = 1*1000
-    rate = 1
+    duration = 15*1000
+    rate = 0.5
+    min_speed = 2
+    speed_range = 5
     def __init__(self, *args, **kwargs):
         self.next_stage = LevelTwo
         super(LevelOne,self).__init__(*args, **kwargs)
@@ -199,8 +221,10 @@ class LevelOne(Level):
 class LevelTwo(Level):
     splash_texture = 'round2.png'
     num_baddies = 2
-    duration = 1*1000
-    rate = 2
+    duration = 15*1000
+    rate = 0.6
+    min_speed = 2
+    speed_range = 6
     def __init__(self, *args, **kwargs):
         self.next_stage = LevelThree
         super(LevelTwo,self).__init__(*args, **kwargs)
@@ -208,8 +232,10 @@ class LevelTwo(Level):
 class LevelThree(Level):
     splash_texture = 'round3.png'
     num_baddies = 3
-    duration = 1*1000
-    rate = 3
+    duration = 15*1000
+    rate = 0.6
+    min_speed = 2.5
+    speed_range = 7
     def __init__(self, *args, **kwargs):
         self.next_stage = LevelFour
         super(LevelThree,self).__init__(*args, **kwargs)
@@ -217,8 +243,10 @@ class LevelThree(Level):
 class LevelFour(Level):
     splash_texture = 'round4.png'
     num_baddies = 4
-    duration = 1*1000
-    rate = 4
+    duration = 15*1000
+    rate = 0.7
+    min_speed = 3
+    speed_range = 8
     def __init__(self, *args, **kwargs):
         self.next_stage = Success
         super(LevelFour,self).__init__(*args, **kwargs)
