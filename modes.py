@@ -114,6 +114,7 @@ class Level(Mode):
         self.keydownmap = 0
         self.start = globals.time
         self.splash = ui.ImageBox(globals.screen_root, Point(0.3,0.4), Point(0.7,0.6), self.splash_texture)
+        self.round_sound.play()
         self.in_splash = True
         self.bowed = False
 
@@ -220,6 +221,7 @@ class LevelOne(Level):
     speed_range = 5
     def __init__(self, *args, **kwargs):
         self.next_stage = LevelTwo
+        self.round_sound = globals.sounds.round1
         super(LevelOne,self).__init__(*args, **kwargs)
 
 class LevelTwo(Level):
@@ -231,6 +233,7 @@ class LevelTwo(Level):
     speed_range = 6
     def __init__(self, *args, **kwargs):
         self.next_stage = LevelThree
+        self.round_sound = globals.sounds.round2
         super(LevelTwo,self).__init__(*args, **kwargs)
 
 class LevelThree(Level):
@@ -242,6 +245,7 @@ class LevelThree(Level):
     speed_range = 7
     def __init__(self, *args, **kwargs):
         self.next_stage = LevelFour
+        self.round_sound = globals.sounds.round3
         super(LevelThree,self).__init__(*args, **kwargs)
 
 class LevelFour(Level):
@@ -253,6 +257,7 @@ class LevelFour(Level):
     speed_range = 8
     def __init__(self, *args, **kwargs):
         self.next_stage = Success
+        self.round_sound = globals.sounds.round4
         super(LevelFour,self).__init__(*args, **kwargs)
 
 
@@ -287,6 +292,10 @@ class GameOver(Mode):
         self.skipped_text = False
         self.letter_duration = 20
         self.continued = False
+        if 'ictory' in self.blurb:
+            globals.sounds.victory.play()
+        else:
+            globals.sounds.defeated.play()
         #pygame.mixer.music.load('end_fail.mp3')
         #pygame.mixer.music.play(-1)
 
