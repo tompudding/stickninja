@@ -4,6 +4,7 @@ import random,numpy,cmath,math,pygame
 import ui,globals,drawing,os,copy
 from globals.types import Point
 import sys
+import actors
 
 class Mode(object):
     """ Abstract base class to represent game modes """
@@ -203,6 +204,14 @@ class Level(Mode):
         self.parent.player.Update()
         for enemy in self.parent.enemies:
             enemy.Update()
+        for leaf in self.parent.leaves:
+            leaf.Update()
+            if leaf.pos.x < 0 or leaf.pos.y < 0:
+                leaf.Delete()
+        orig = len(self.parent.leaves)
+        self.parent.leaves = [leaf for leaf in self.parent.leaves if not leaf.dead]
+        while len(self.parent.leaves) < orig:
+            self.parent.leaves.append(actors.Leaf(right=True))
         new_missiles = []
         for missile in self.parent.missiles:
             if missile.Update():

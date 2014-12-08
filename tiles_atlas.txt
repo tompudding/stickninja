@@ -8,4 +8,5 @@ resource/sprites/focus.png:tiles_atlas_0.png:587:728.0:128:36
 resource/sprites/health.png:tiles_atlas_0.png:715:728.0:128:36
 resource/sprites/score.png:tiles_atlas_0.png:843:728.0:128:36
 resource/sprites/ball.png:tiles_atlas_0.png:918:960.0:64:64
+resource/sprites/leaf.png:tiles_atlas_0.png:918:896.0:64:64
 resource/sprites/platform.png:tiles_atlas_0.png:587:696.0:128:32

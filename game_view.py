@@ -11,7 +11,7 @@ class GameView(ui.RootElement):
     def __init__(self):
         self.atlas = globals.atlas = drawing.texture.TextureAtlas('tiles_atlas_0.png','tiles_atlas.txt')
         self.game_over = False
-        #pygame.mixer.music.load('music.ogg')
+        pygame.mixer.music.load(os.path.join('resource','sounds','wind.ogg'))
         #self.music_playing = False
         super(GameView,self).__init__(Point(0,0),globals.screen)
         #skip titles for development of the main game
@@ -31,10 +31,10 @@ class GameView(ui.RootElement):
         self.enemies[0].projectiles = [actors.Shuriken]
         for enemy in self.enemies[1:]:
             enemy.projectiles = [actors.Shuriken,actors.Ball]
+        self.leaves = [actors.Leaf() for i in xrange(25)]
 
     def StartMusic(self):
-        pass
-        #pygame.mixer.music.play(-1)
+        pygame.mixer.music.play(-1)
         #self.music_playing = True
 
     def Draw(self):

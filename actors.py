@@ -229,7 +229,6 @@ class Actor(object):
         if self.punching:
             return
         self.punching = animation_data.Punch(self, self.punch_duration, diff)
-        print 'jim',globals.time,self.punching.start
 
     def collides(self,missile):
         centre = self.pos + self.size/2
@@ -331,6 +330,8 @@ class Player(Ninja):
     def EnableFocus(self):
         if self.focus <= 0:
             return
+        globals.sounds.slow.stop()
+        globals.sounds.fast.stop()
         globals.sounds.slow.play()
         self.focus_start = globals.real_time
         self.focus_end = globals.real_time + 500
@@ -343,6 +344,8 @@ class Player(Ninja):
     def DisableFocus(self):
         if not self.focused:
             return
+        globals.sounds.slow.stop()
+        globals.sounds.fast.stop()
         globals.sounds.fast.play()
         self.focus_start = globals.real_time
         self.focus_end = globals.real_time + 500
@@ -402,6 +405,45 @@ class Player(Ninja):
     def add_score(self,amount):
         self.score += amount
         self.score_box.SetText(self.score_format % self.score)
+
+class Leaf(object):
+    texture_name = 'leaf.png'
+    def __init__(self,right=False):
+        self.pos = globals.screen*Point(1.0 if right else random.random(),random.random()*2 if right else random.random())
+        self.radius = 4
+        self.angle = random.random()*math.pi*2
+        self.quad = drawing.Quad(globals.quad_buffer,tc = globals.atlas.TextureSpriteCoords(self.texture_name))
+        self.set_pos(self.pos, self.angle)
+        self.move_speed = Point(-1 + (random.random()-0.5)*0.2,-0.5+ (random.random()-0.5)*0.2)
+        self.rotation_speed = (random.random()-0.5)*0.1
+        self.dead = False
+        self.last_update = None
+
+    def set_pos(self,pos,angle):
+        self.pos = pos
+        self.angle = angle
+        vertices = []
+        for i in xrange(4):
+            r = cmath.rect(self.radius,self.angle + (math.pi*(i*0.5 + 0.25)))
+            vertices.append(self.pos + Point(r.real, r.imag))
+        self.quad.SetAllVertices(vertices,100)
+
+    def Update(self):
+        if self.dead:
+            return False
+        if self.last_update == None:
+            self.last_update = globals.time
+            return True
+        elapsed = globals.time - self.last_update
+        self.last_update = globals.time
+        amount = Point(self.move_speed.x*elapsed*0.03,self.move_speed.y*elapsed*0.03)
+        target = self.pos + amount
+        new_angle = self.angle + self.rotation_speed*elapsed*0.03
+        self.set_pos(target, new_angle)
+
+    def Delete(self):
+        self.quad.Delete()
+        self.dead = True
 
 class Missile(object):
     ghost_duration = 1000
