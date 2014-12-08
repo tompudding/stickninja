@@ -294,6 +294,7 @@ class Player(Ninja):
     focus_rate = 0.4
     focus_duration = float(500)
     initial_focus = 5000
+    punch_duration = 300
     def __init__(self, *args, **kwargs):
         super(Player,self).__init__(*args, **kwargs)
         self.mouse_pos = Point(0,0)

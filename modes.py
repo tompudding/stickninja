@@ -162,6 +162,9 @@ class Level(Mode):
                 self.splash.Disable()
                 self.in_splash = False
                 self.done = globals.time + self.duration
+                for enemy in self.parent.enemies[:self.num_baddies]:
+                    extra = max(200,((random.random()-0.5)*2000) + 1000.0/self.rate)
+                    enemy.next_projectile = globals.time + extra
                 self.next_projectile = globals.time
             elif elapsed > self.splash_time:
                 fade_amount = (elapsed - self.splash_time)/self.splash_fade_duration
@@ -173,8 +176,8 @@ class Level(Mode):
                 self.parent.mode.keydownmap = self.keydownmap
                 #This is probably a race condition. Oh well
                 return
-            if globals.time >= self.next_projectile:
-                for enemy in self.parent.enemies[:self.num_baddies]:
+            for enemy in self.parent.enemies[:self.num_baddies]:
+                if globals.time >= enemy.next_projectile:
                     diff = self.parent.player.pos - enemy.torso.end_pos_abs
                     enemy.punch(diff)
                     source_pos = enemy.right_forearm.end_pos_abs
@@ -193,7 +196,8 @@ class Level(Mode):
                                                                random.random())
                     self.parent.missiles.append(missile)
 
-                self.next_projectile = globals.time + 1000.0/self.rate
+                    extra = max(200,((random.random()-0.5)*2000) + 1000.0/self.rate)
+                    enemy.next_projectile = globals.time + extra
 
         self.parent.player.Update()
         for enemy in self.parent.enemies:

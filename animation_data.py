@@ -278,7 +278,7 @@ class Punch(Animation):
             else:
                 frame[bones.Bones.LEFT_BICEP] = -math.pi*0.45
                 frame[bones.Bones.LEFT_FOREARM] = math.pi*0.45
-        durations = (self.duration*0.5,self.duration*0.3,self.duration*0.2,1)
+        durations = (self.duration*0.4,self.duration*0.1,self.duration*0.5,1)
         super(Punch,self).__init__(frames,durations)
 
     def active(self):
