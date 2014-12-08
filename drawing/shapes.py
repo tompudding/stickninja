@@ -10,6 +10,9 @@ class Circle(object):
         self.colour = colour
         self.radius = radius
         self.lines = [drawing.Line(source) for i in xrange(self.segments)]
+        self.band = [drawing.Line(source) for i in xrange(3)]
+        for b in self.band:
+            b.SetColour(drawing.constants.colours.blue)
         self.set_pos(pos)
 
     def set_pos(self,pos):
@@ -20,6 +23,18 @@ class Circle(object):
             p = self.pos + Point( math.cos(angle)*self.radius,math.sin(angle)*self.radius)
             self.points.append(p)
             self.lines[i].SetColour(self.colour)
+
+        angle = math.pi*0.2
+        band_start = self.pos + Point( math.cos(angle)*self.radius,math.sin(angle)*self.radius)
+        angle = math.pi*0.8
+        band_end = self.pos + Point( math.cos(angle)*self.radius,math.sin(angle)*self.radius)
+        diff = band_end - band_start
+        band_1 = band_start + Point(diff.x/3.0,-self.radius*0.2)
+        band_2 = band_start + Point(diff.x*2/3.0,-self.radius*0.2)
+        band_positions = [band_start,band_1,band_2,band_end]
+        for i in xrange(3):
+            self.band[i].SetVertices(band_positions[i],band_positions[i+1],100)
+
 
         for i in xrange(self.segments):
             self.lines[i].SetVertices(self.points[i],self.points[(i+1)%self.segments],100)
