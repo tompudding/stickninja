@@ -286,6 +286,10 @@ class Ninja(Actor):
 
 class Baddie(Ninja):
     gravity = False
+    def __init__(self,*args,**kwargs):
+        super(Baddie,self).__init__(*args,**kwargs)
+        for b in self.head.circle.band:
+            b.SetColour(drawing.constants.colours.red)
     def Update(self):
         super(Baddie,self).Update()
         self.point_at(globals.game_view.player.pos)
