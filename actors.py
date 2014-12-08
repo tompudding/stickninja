@@ -243,6 +243,7 @@ class Actor(object):
                 #print 'collide on bone',bone_type
                 if self.punching and self.punching.active() and bone_type in bones.Bones.right_arm:
                     self.add_score(missile.hit_points)
+                    self.reset_focus()
                     return self.punching.extra_speed, self.punching.extra_rotation
                 if bone_type in bones.Bones.damageable:
                     hit = True
@@ -306,6 +307,7 @@ class Player(Ninja):
         self.focus_value    = None
         self.focus_change   = None
         self.focused = False
+        self.last_focus = 0
 
         self.health_bar = ui.PowerBar(globals.screen_root, Point(0.8,0.9), Point(0.9,0.93), 1.0, barColours, barBorder)
         self.focus_bar = ui.PowerBar(globals.screen_root, Point(0.1,0.9), Point(0.2,0.93), 1.0, barColours, barBorder)
@@ -368,10 +370,12 @@ class Player(Ninja):
                 partial = elapsed / self.focus_duration
                 globals.tick_rate = self.focus_value + self.focus_change*partial
 
+        diff = globals.real_time - self.last_focus
+        self.last_focus = globals.real_time
         if self.focused:
-            diff = globals.real_time - self.last_focus
-            self.last_focus = globals.real_time
             self.add_focus(-diff)
+        else:
+            self.add_focus(diff/2)
 
         super(Player,self).Update()
         diff = self.mouse_pos - self.torso.end_pos_abs
