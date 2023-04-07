@@ -435,7 +435,7 @@ class Leaf(object):
     def Update(self):
         if self.dead:
             return False
-        if self.last_update == None:
+        if self.last_update is None:
             self.last_update = globals.time
             return True
         elapsed = globals.time - self.last_update
@@ -464,7 +464,7 @@ class Missile(object):
     def Update(self):
         if self.dead:
             return False
-        if self.last_update == None:
+        if self.last_update is None:
             self.last_update = globals.time
             return True
         elapsed = globals.time - self.last_update

@@ -291,7 +291,7 @@ class RootElement(UIElement):
         if hovered:
             hovered.MouseMotion(pos,rel,handled)
         if hovered is not self.hovered:
-            if self.hovered != None:
+            if self.hovered is not None:
                 self.hovered.EndHover()
         if not hovered or not self.depressed or (self.depressed and hovered is self.depressed):
             if hovered is not self.hovered:
@@ -402,7 +402,7 @@ class PowerBar(UIElement):
         self.low_power_colour    = bar_colours[0]
         self.medium_power_colour = bar_colours[1]
         self.high_power_colour   = bar_colours[2]
-        if buffer == None:
+        if buffer is None:
             buffer = globals.ui_buffer
         self.border              = drawing.QuadBorder(buffer,line_width = 1)
         self.border_colour       = border_colour
@@ -479,7 +479,7 @@ class Box(UIElement):
         self.colour = colour
         self.unselectable_colour = tuple(component*0.6 for component in self.colour)
         self.quad.SetColour(self.colour)
-        self.extra_level = 0 if level == None else level
+        self.extra_level = 0 if level is None else level
         self.quad.SetVertices(self.absolute.bottom_left,
                               self.absolute.top_right,
                               self.level + self.extra_level)
@@ -566,13 +566,13 @@ class Border(UIElement):
 class ImageBox(Box):
     def __init__(self,parent,pos,tr,texture_name,buffer=None,level = None):
         super(Box,self).__init__(parent,pos,tr)
-        if buffer == None:
+        if buffer is None:
             buffer = globals.ui_texture_buffer
 
         self.quad = drawing.Quad(buffer)
         self.texture_name = texture_name
         self.tc = globals.atlas.TextureSpriteCoords(self.texture_name)
-        self.extra_level = 0 if level == None else level
+        self.extra_level = 0 if level is None else level
         self.quad.SetVertices(self.absolute.bottom_left,
                               self.absolute.top_right,
                               self.level + self.extra_level)
@@ -644,7 +644,7 @@ class DottedLine(UIElement):
         self.colour = colour
         self.SetColour(self.colour)
         self.num_segments = num_segments
-        self.extra_level = 0 if level == None else level
+        self.extra_level = 0 if level is None else level
         self.SetPosition()
         self.Enable()
 
@@ -877,7 +877,7 @@ class TitleBar(HoverableBox):
 class TextBox(UIElement):
     """ A Screen-relative text box wraps text to a given size """
     def __init__(self,parent,bl,tr,text,scale,colour = None,textType = drawing.texture.TextTypes.SCREEN_RELATIVE,alignment = drawing.texture.TextAlignments.LEFT,level = None):
-        if tr == None:
+        if tr is None:
             #If we're given no tr; just set it to one row of text, as wide as it can get without overflowing
             #the parent
             self.shrink_to_fit = True
@@ -892,7 +892,7 @@ class TextBox(UIElement):
         if not self.shrink_to_fit:
             #In this case our margin is a fixed part of the box
             self.margin      = Point(0.05,0.05)
-        self.extra_level = 0 if level == None else level
+        self.extra_level = 0 if level is None else level
         self.text        = text
         self.current_enabled = len(self.text)
         self.scale       = scale
@@ -1065,7 +1065,7 @@ class TextBox(UIElement):
         super(TextBox,self).Enable()
 
     def EnableChars(self,num = None):
-        if num == None:
+        if num is None:
             num = len(self.quads)
         if num < self.current_enabled:
             for quad in self.quads[num:]:
@@ -1148,7 +1148,7 @@ class ScrollTextBox(TextBox):
         pos = self.GetRelative(pos)
         low_thresh = 0.05
         high_thresh = 1.05
-        if self.dragging != None:
+        if self.dragging is not None:
             #print pos,'vp:',self.viewpos,(self.dragging - pos).y
             self.viewpos = self.ValidViewpos(self.dragging - pos.y)
 
@@ -1169,7 +1169,7 @@ class TextBoxButton(TextBox):
         self.depressed   = False
         self.enabled     = False
         self.colour      = colour
-        self.extra_level = 0 if level == None else level
+        self.extra_level = 0 if level is None else level
         super(TextBoxButton,self).__init__(parent,pos,tr,text,size,colour = colour,textType = textType,level = level,alignment = drawing.texture.TextAlignments.CENTRE)
         for i in xrange(4):
             self.hover_quads[i].Disable()
@@ -1287,7 +1287,7 @@ class TextBoxButton(TextBox):
         super(TextBoxButton,self).Disable()
 
     def OnClick(self,pos,button):
-        if 1 or self.callback != None and button == 1:
+        if 1 or self.callback is not None and button == 1:
             self.callback(pos)
 
 class Slider(UIElement):
@@ -1296,7 +1296,7 @@ class Slider(UIElement):
         self.points   = sorted(points,lambda x,y:cmp(x[0],y[0]))
         self.callback = callback
         self.lines    = []
-        self.uilevel  = self.level if level == None else level + self.level
+        self.uilevel  = self.level if level is None else level + self.level
         self.enabled  = False
         self.clickable_area = UIElement(self,Point(0.05,0),Point(0.95,1))
         line          = drawing.Quad(globals.ui_buffer)
@@ -1329,7 +1329,7 @@ class Slider(UIElement):
             self.lines.append(line)
 
     def SetPointer(self,new_index = None):
-        if new_index != None:
+        if new_index is not None:
             self.index = new_index
         offset = self.offsets[self.index]
 
